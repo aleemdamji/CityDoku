@@ -3,9 +3,9 @@ import { sb, deleteAccount } from './backend.js';
 import { NATIVE } from './native.js';
 
 const TX = {
-  en: { title: 'Sign in to Citydoku', help: 'Save your scores and streaks, pick a username, join friend leagues and play on any device.', apple: 'Continue with Apple', google: 'Continue with Google', facebook: 'Continue with Facebook', or: 'or', email: 'Email', send: 'Email me a sign-in link', cancel: 'Cancel', sent: 'Check your email for a sign-in link.', bad: 'Enter a valid email address.', fail: 'Sign-in didn’t work. Try again in a moment.', privacy: 'Privacy policy', del: 'Delete account', delQ: 'Delete your account and all your scores? This can’t be undone.', delDone: 'Your account was deleted.' },
-  fr: { title: 'Se connecter à Citydoku', help: 'Sauvegarde tes scores et tes séries, choisis un nom d’utilisateur, rejoins des ligues et joue sur tous tes appareils.', apple: 'Continuer avec Apple', google: 'Continuer avec Google', facebook: 'Continuer avec Facebook', or: 'ou', email: 'Courriel', send: 'M’envoyer un lien de connexion', cancel: 'Annuler', sent: 'Regarde tes courriels : on t’a envoyé un lien de connexion.', bad: 'Entre une adresse courriel valide.', fail: 'La connexion n’a pas fonctionné. Réessaie dans un moment.', privacy: 'Politique de confidentialité', del: 'Supprimer mon compte', delQ: 'Supprimer ton compte et tous tes scores? C’est irréversible.', delDone: 'Ton compte a été supprimé.' },
-  es: { title: 'Inicia sesión en Citydoku', help: 'Guarda tus puntajes y rachas, elige un nombre de usuario, únete a ligas y juega en cualquier dispositivo.', apple: 'Continuar con Apple', google: 'Continuar con Google', facebook: 'Continuar con Facebook', or: 'o', email: 'Correo electrónico', send: 'Enviarme un enlace de acceso', cancel: 'Cancelar', sent: 'Revisa tu correo: te enviamos un enlace de acceso.', bad: 'Escribe un correo válido.', fail: 'No se pudo iniciar sesión. Inténtalo de nuevo en un momento.', privacy: 'Política de privacidad', del: 'Eliminar cuenta', delQ: '¿Eliminar tu cuenta y todos tus puntajes? No se puede deshacer.', delDone: 'Tu cuenta fue eliminada.' },
+  en: { title: 'Sign in to Citydoku', help: 'Save your scores and streaks, pick a username, join friend leagues and play on any device.', apple: 'Continue with Apple', google: 'Continue with Google', facebook: 'Continue with Facebook', or: 'or', email: 'Email', send: 'Email me a sign-in link', cancel: 'Cancel', sent: 'Check your email for a sign-in link.', rate: 'Too many sign-in emails. Wait a few minutes and try again.', expired: 'That sign-in link expired or was opened in a different browser. Request a new link and open it in the same browser you’re playing in.', bad: 'Enter a valid email address.', fail: 'Sign-in didn’t work. Try again in a moment.', privacy: 'Privacy policy', del: 'Delete account', delQ: 'Delete your account and all your scores? This can’t be undone.', delDone: 'Your account was deleted.' },
+  fr: { title: 'Se connecter à Citydoku', help: 'Sauvegarde tes scores et tes séries, choisis un nom d’utilisateur, rejoins des ligues et joue sur tous tes appareils.', apple: 'Continuer avec Apple', google: 'Continuer avec Google', facebook: 'Continuer avec Facebook', or: 'ou', email: 'Courriel', send: 'M’envoyer un lien de connexion', cancel: 'Annuler', sent: 'Regarde tes courriels : on t’a envoyé un lien de connexion.', rate: 'Trop de courriels envoyés. Attends quelques minutes et réessaie.', expired: 'Ce lien a expiré ou a été ouvert dans un autre navigateur. Demande un nouveau lien et ouvre-le dans le navigateur où tu joues.', bad: 'Entre une adresse courriel valide.', fail: 'La connexion n’a pas fonctionné. Réessaie dans un moment.', privacy: 'Politique de confidentialité', del: 'Supprimer mon compte', delQ: 'Supprimer ton compte et tous tes scores? C’est irréversible.', delDone: 'Ton compte a été supprimé.' },
+  es: { title: 'Inicia sesión en Citydoku', help: 'Guarda tus puntajes y rachas, elige un nombre de usuario, únete a ligas y juega en cualquier dispositivo.', apple: 'Continuar con Apple', google: 'Continuar con Google', facebook: 'Continuar con Facebook', or: 'o', email: 'Correo electrónico', send: 'Enviarme un enlace de acceso', cancel: 'Cancelar', sent: 'Revisa tu correo: te enviamos un enlace de acceso.', rate: 'Demasiados correos. Espera unos minutos e inténtalo de nuevo.', expired: 'Ese enlace caducó o se abrió en otro navegador. Pide uno nuevo y ábrelo en el mismo navegador donde juegas.', bad: 'Escribe un correo válido.', fail: 'No se pudo iniciar sesión. Inténtalo de nuevo en un momento.', privacy: 'Política de privacidad', del: 'Eliminar cuenta', delQ: '¿Eliminar tu cuenta y todos tus puntajes? No se puede deshacer.', delDone: 'Tu cuenta fue eliminada.' },
 };
 const tx = (k) => (TX[window.CD?.LANG] || TX.en)[k];
 const $ = (id) => document.getElementById(id);
@@ -59,10 +59,22 @@ export function installAuthUI() {
   $('authCancel').addEventListener('click', () => $('authDlg').close());
   $('authForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = $('authSend');
     const email = $('authEmail').value.trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { $('authErr').textContent = tx('bad'); return; }
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: NATIVE.isNative ? REDIRECT_NATIVE : location.origin + location.pathname } });
-    $('authErr').textContent = error ? tx('fail') : tx('sent');
+    if (btn.disabled) return;
+    btn.disabled = true; $('authErr').textContent = '';
+    try {
+      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: NATIVE.isNative ? REDIRECT_NATIVE : location.origin + location.pathname } });
+      if (error) {
+        console.warn('signInWithOtp', error.status, error.code, error.message);
+        $('authErr').textContent = (error.code === 'over_email_send_rate_limit' || error.status === 429) ? tx('rate') : tx('fail');
+      } else $('authErr').textContent = tx('sent');
+    } catch (err) {
+      $('authErr').textContent = tx('fail');
+    } finally {
+      setTimeout(() => { btn.disabled = false; }, 3000);
+    }
   });
   // Buttons rendered by the game's account bar
   document.addEventListener('click', async (e) => {
@@ -73,6 +85,13 @@ export function installAuthUI() {
       try { await deleteAccount(); window.CD?.toast(tx('delDone')); } catch { window.CD?.toast(tx('fail')); }
     }
   });
+  // Failed email link (expired, already used, or opened in another browser than it was requested from)
+  const q = new URLSearchParams(location.search + '&' + location.hash.replace(/^#/, ''));
+  if (q.get('error') || q.get('error_code')) {
+    history.replaceState(null, '', location.pathname);
+    openSignIn();
+    $('authErr').textContent = tx('expired');
+  }
   // iOS: finish OAuth / email-link sign-in when the app is reopened from the redirect
   if (NATIVE.isNative) {
     import('@capacitor/app').then(({ App }) => App.addListener('appUrlOpen', async ({ url }) => {
