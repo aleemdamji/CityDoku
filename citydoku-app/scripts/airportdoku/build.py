@@ -36,7 +36,9 @@ def build(args):
         if r.get('airport_ref'):
             runways[r['airport_ref']].append(r)
     reviews = {r['ourairports_id']:r for r in rows(args.review)}
-    traffic = {r['ourairports_id']:r for r in rows(args.passengers)}
+    traffic_rows = rows(args.passengers)
+    traffic = {r['ourairports_id']:r for r in traffic_rows if r.get('ourairports_id')}
+    traffic_iata = {r['iata']:r for r in traffic_rows if r.get('iata')}
     overrides = {r['ourairports_id']:r for r in rows(args.overrides)}
     routes = rows(args.routes)
     candidate = [r for r in base if r.get('type') in ('large_airport','medium_airport')
@@ -85,7 +87,7 @@ def build(args):
         if island is None or capital is None:
             queues['geography_unverified'].append(r['iata_code'])
             continue
-        t=traffic.get(aid,{})
+        t=traffic.get(aid) or traffic_iata.get(r['iata_code'],{})
         try:
             count=int(t['passengers_2025']) if t.get('passengers_2025') else None
         except ValueError:
@@ -93,7 +95,7 @@ def build(args):
         if count is None or count < 0 or not t.get('source_url') or not t.get('verified_at'):
             queues['passengers_unverified'].append(r['iata_code'])
             continue
-        if not review.get('route_coverage_verified') or nullable_bool(review.get('route_coverage_verified')) is not True:
+        if nullable_bool(review.get('route_coverage_verified')) is not True:
             queues['route_coverage_unverified'].append(r['iata_code'])
             continue
         rw=[]
