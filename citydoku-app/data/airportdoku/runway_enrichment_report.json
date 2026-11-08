@@ -1,0 +1,161 @@
+{
+  "source": {
+    "airportsBlob": "1fcf3362996d0a015ab1ab7f2659ee494065339a",
+    "runwaysBlob": "9c4545165f616bae910830812ddd70a9b879f119",
+    "provider": "OurAirports",
+    "license": "public domain",
+    "retrieved": "2026-11-08"
+  },
+  "totalStaged": 3244,
+  "airportIdentityMatched": 3244,
+  "runwayCountAvailable": 3224,
+  "longestRunwayAvailable": 3224,
+  "unmatched": [],
+  "ambiguousCode": [],
+  "idConflict": [],
+  "unusableRunway": [
+    {
+      "iata": "OZG",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "LHL",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "LSG",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "MEQ",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "MZS",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "SQG",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "TMH",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "ZAT",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "AMV",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "SYS",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "ZIX",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "ZKP",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "CUK",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "CYC",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "DGA",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "JEE",
+      "allRunwayRows": 1
+    },
+    {
+      "iata": "SPR",
+      "allRunwayRows": 1
+    },
+    {
+      "iata": "TZA",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "OPU",
+      "allRunwayRows": 0
+    },
+    {
+      "iata": "TGJ",
+      "allRunwayRows": 0
+    }
+  ],
+  "notYetOperationallyVerified": 3244,
+  "examples": [
+    {
+      "iata": "AAC",
+      "runways": 2,
+      "longest": 3019
+    },
+    {
+      "iata": "AAE",
+      "runways": 2,
+      "longest": 3000
+    },
+    {
+      "iata": "ABB",
+      "runways": 1,
+      "longest": 3400
+    },
+    {
+      "iata": "ABJ",
+      "runways": 1,
+      "longest": 3000
+    },
+    {
+      "iata": "ABK",
+      "runways": 1,
+      "longest": 2500
+    },
+    {
+      "iata": "ABS",
+      "runways": 1,
+      "longest": 3000
+    },
+    {
+      "iata": "ABV",
+      "runways": 1,
+      "longest": 3609
+    },
+    {
+      "iata": "ACC",
+      "runways": 1,
+      "longest": 3403
+    },
+    {
+      "iata": "ADD",
+      "runways": 2,
+      "longest": 3800
+    },
+    {
+      "iata": "AGA",
+      "runways": 1,
+      "longest": 3200
+    },
+    {
+      "iata": "AHU",
+      "runways": 1,
+      "longest": 3204
+    },
+    {
+      "iata": "AJN",
+      "runways": 1,
+      "longest": 1350
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+name: Airportdoku staging checks
+on:
+  pull_request:
+    paths:
+      - 'citydoku-app/src/game.js'
+      - 'citydoku-app/src/data/airports*'
+      - 'citydoku-app/data/airportdoku/**'
+      - 'citydoku-app/scripts/airportdoku/**'
+      - '.github/workflows/airportdoku-validation.yml'
+  push:
+    branches: ['feature/airportdoku-v1']
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: citydoku-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: citydoku-app/package-lock.json
+      - name: Staging identity and puzzle feasibility
+        run: node scripts/airportdoku/validate-staging.mjs
+      - name: Candidate snapshot integrity
+        run: node scripts/airportdoku/validate-candidates.mjs
+      - name: Install dependencies
+        run: npm ci
+      - name: Production build with airport release disabled
+        run: npm run build
