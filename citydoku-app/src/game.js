@@ -343,6 +343,9 @@ function load(){
   aggregate();render();
 }
 function save(){if(key)store.set(key,S)}
+// New day while the tab or iOS app was in the background: reload so the new daily grid shows.
+function rollover(){if(mode==='daily'&&curDate&&curDate!==todayET())location.reload()}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)rollover()});window.addEventListener('focus',rollover);
 // ---------- rarity ----------
 // Smoothed pick rate: the real share of players who chose this answer, blended with a
 // population-based estimate while few have played (K = weight of the estimate, in players).
@@ -515,7 +518,7 @@ function drawLB(){const body=document.getElementById('lbBody');const ds=todayET(
   if(lbTab==='today'){
     const K2=dk(ds);rows=BASE.filter(d=>nameOf(d)&&d.days?.[K2]?.done&&!d.days[K2].late).map(d=>({id:d.id,name:nameOf(d),n:d.days[K2].n,r:d.days[K2].rarity,u:d.days[K2].u||0})).sort((a,b)=>b.n-a.n||a.r-b.r);
     head=`<tr><th class="rk">#</th><th>${T('cPlayer')}</th><th class="num">${T('cCorrect')}</th><th class="num">${T('cUniq')}</th><th class="num">${T('cRarity')}</th></tr>`;
-    rows=rows.map((x,k)=>`<tr class="${x.id===UID?'me':''}"><td class="rk">${k+1}</td><td>${esc(x.name)}</td><td class="num">${x.n}/9</td><td class="num">${x.u}</td><td class="num">${x.r??'–'}</td></tr>`);note=T('lbNote');
+    rows=rows.map((x,k)=>`<tr class="${x.id===UID?'me':''}"><td class="rk">${k+1}</td><td>${esc(x.name)}</td><td class="num">${+x.n||0}/9</td><td class="num">${+x.u||0}</td><td class="num">${typeof x.r==='number'?x.r:'–'}</td></tr>`);note=T('lbNote');
   }else{
     rows=BASE.filter(d=>nameOf(d)).map(d=>({id:d.id,name:nameOf(d),...statsOf(edDays(d.days))})).filter(x=>x.played).sort((a,b)=>b.perfect-a.perfect||(a.avg??1e9)-(b.avg??1e9)||b.played-a.played);
     head=`<tr><th class="rk">#</th><th>${T('cPlayer')}</th><th class="num">${T('cPlayed')}</th><th class="num">${T('cPerfect')}</th><th class="num">${T('cAvg')}</th><th class="num">${T('cStreak')}</th></tr>`;
