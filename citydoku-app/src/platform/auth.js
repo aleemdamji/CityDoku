@@ -35,6 +35,9 @@ async function oauth(provider) {
   } catch (e) { $('authErr').textContent = tx('fail'); }
 }
 
+// Providers kept off the sign-in dialog for now (remove 'facebook' to show it once the Meta app is published).
+const HIDDEN_PROVIDERS = new Set(['facebook']);
+
 // Only show the sign-in buttons for providers turned on in Supabase (Authentication → Providers).
 async function showEnabledProviders() {
   const ids = { apple: 'authApple', google: 'authGoogle', facebook: 'authFacebook' };
@@ -45,7 +48,7 @@ async function showEnabledProviders() {
     const res = await fetch(url, { headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY } });
     const ext = (await res.json())?.external || {};
     let any = false;
-    for (const [p, id] of Object.entries(ids)) if (ext[p] === true) { $(id).hidden = false; any = true; }
+    for (const [p, id] of Object.entries(ids)) if (ext[p] === true && !HIDDEN_PROVIDERS.has(p)) { $(id).hidden = false; any = true; }
     $('authOr').parentElement.hidden = !any;
   } catch { /* email sign-in still works */ }
 }
