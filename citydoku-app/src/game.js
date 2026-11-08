@@ -1,13 +1,14 @@
 import CA from './data/ca.json';
 import US from './data/us.json';
 import GL from './data/global.json';
+import AIR from './data/airports.json';
 import LAND from './data/land.txt?raw';
 
-const DATA={ca:CA,us:US,global:GL};const GLC=Object.fromEntries(DATA.global.map(c=>[c.p,c.cn]));let CITIES=DATA.ca;
+const DATA={ca:CA,us:US,global:GL,air:AIR};const GLC=Object.fromEntries(DATA.global.map(c=>[c.p,c.cn]));let CITIES=DATA.ca;
 
 // ---------- editions ----------
 const EDITIONS={
- air:{flag:'✈️',name:{en:'Airports',fr:'Aéroports',es:'Aeropuertos'},brand:['Airport','doku'],ready:false,langs:['en','fr','es'],hash:'airports',img:'#18789C',seed:'airportdoku-',launch:'2026-11-08',leaf:'✈️',
+ air:{flag:'✈️',name:{en:'Airports',fr:'Aéroports',es:'Aeropuertos'},brand:['Airport','doku'],ready:AIR.length>=100&&AIR.every(a=>Number.isFinite(a.pop)&&typeof a.cont5==='boolean'&&typeof a.island==='boolean'&&typeof a.cap==='boolean'),langs:['en','fr','es'],hash:'airports',img:'#18789C',seed:'airportdoku-',launch:'2026-11-08',leaf:'✈️',
   title:'Airportdoku',lead:'A 3×3 airport trivia challenge. Name an airport that fits both clues using its IATA code or airport name.',
   cities:'Major and medium-sized airports with scheduled commercial passenger service. Temporarily suspended airports are excluded. Airports are separate answers, even if they serve the same city.',
   cats:['Country, continent and hemisphere','On an island; serves a national capital','IATA code patterns','Elevation and number or length of runways','2025 annual passengers: 5M+, 10M+, 25M+, 50M+','Non-stop scheduled passenger service to 5+ continents'],
@@ -158,7 +159,7 @@ const fmt=n=>n.toLocaleString(LANG==='fr'?'fr-CA':LANG==='es'?'es-MX':'en-CA');
 const PROV={en:{ON:'Ontario',QC:'Quebec',BC:'British Columbia',AB:'Alberta',SK:'Saskatchewan',MB:'Manitoba',NB:'New Brunswick',NS:'Nova Scotia',PE:'Prince Edward Island',NL:'Newfoundland and Labrador',YT:'Yukon',NT:'Northwest Territories',NU:'Nunavut'},
  fr:{ON:'Ontario',QC:'Québec',BC:'Colombie-Britannique',AB:'Alberta',SK:'Saskatchewan',MB:'Manitoba',NB:'Nouveau-Brunswick',NS:'Nouvelle-Écosse',PE:'Île-du-Prince-Édouard',NL:'Terre-Neuve-et-Labrador',YT:'Yukon',NT:'Territoires du Nord-Ouest',NU:'Nunavut'}};
 const USST={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
-const PV=p=>ED==='us'?stName(p):ED==='global'?(ctryName({p,cn:GLC[p]})):PROV[LANG]?.[p]??PROV.en[p];
+const PV=p=>ED==='air'?p:ED==='us'?stName(p):ED==='global'?(ctryName({p,cn:GLC[p]})):PROV[LANG]?.[p]??PROV.en[p];
 const inProv=c=>L('in ','au ')+PV(c.p)+(c.p2?L(' and ',' et ')+PV(c.p2):'');
 const lg=(c,l)=>c.t.filter(t=>t[1]===l);
 const teamFact=(c,ls)=>{const t=c.t.filter(x=>ls.includes(x[1]));return t.length?t.map(x=>x[0]).join(', '):L('none','aucune')};
@@ -291,6 +292,34 @@ const CATS_GL=[
  U('g_abad','name',KK.name,['Ends in -abad or -pur','Se termine par -abad ou -pur','Termina en -abad o -pur'],.4,c=>/(abad|pur)$/i.test(c.n),c=>`“${c.n}”`,1),
  U('g_two','name',KK.name,['Name of two or more words','Nom de deux mots ou plus','Nombre de dos o más palabras'],.8,c=>/[ -]/.test(c.n.replace(/\(.*\)/,'').trim()),c=>`“${c.n}”`),
 ];
+// Airportdoku predicates use vetted airport records only. Null is never a negative answer.
+const AIRK={geo:['Geography','Géographie','Geografía'],country:['Country','Pays','País'],
+ code:['Airport code','Code aéroport','Código de aeropuerto'],
+ runway:['Runways','Pistes','Pistas'],traffic:['2025 passengers','Passagers en 2025','Pasajeros en 2025'],
+ status:['Airport','Aéroport','Aeropuerto'],elev:['Elevation','Altitude','Altitud'],
+ routes:['Non-stop flights','Vols sans escale','Vuelos directos']};
+const AIR_CONT={Africa:['Africa','Afrique','África'],Asia:['Asia','Asie','Asia'],
+ Europe:['Europe','Europe','Europa'],'North America':['North America','Amérique du Nord','América del Norte'],
+ 'South America':['South America','Amérique du Sud','América del Sur'],Oceania:['Oceania','Océanie','Oceanía']};
+const airFact=c=>c.p+' · '+c.city+', '+c.country;
+const CATS_AIR=[
+ ...Object.entries(AIR_CONT).map(([k,v])=>U('a_c_'+k.replace(/ /g,''),'prov',AIRK.geo,v,1.7,c=>c.cont===k,airFact)),
+ ...['US','CA','GB','FR','DE','IN','CN','JP','BR','AU','MX','ES','IT','TR'].map(cc=>U('a_country_'+cc,'country',AIRK.country,[cc,cc,cc],1,c=>c.country===cc,airFact)),
+ U('a_north','hemisphere',AIRK.geo,['Northern Hemisphere','Hémisphère Nord','Hemisferio norte'],1,c=>c.lat>0,airFact),
+ U('a_south','hemisphere',AIRK.geo,['Southern Hemisphere','Hémisphère Sud','Hemisferio sur'],1,c=>c.lat<0,airFact),
+ U('a_island','island',AIRK.geo,['Located on an island','Situé sur une île','Situado en una isla'],1,c=>c.island===true,airFact),
+ U('a_cap','capital',AIRK.status,['Serves a national capital','Dessert une capitale nationale','Sirve a una capital nacional'],1.2,c=>c.cap===true,airFact),
+ ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(ch=>U('a_first_'+ch,'code',AIRK.code,['IATA starts with '+ch,'Code IATA commence par '+ch,'Código IATA empieza por '+ch],.5,c=>c.p.startsWith(ch),airFact)),
+ ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(ch=>U('a_last_'+ch,'code',AIRK.code,['IATA ends with '+ch,'Code IATA se termine par '+ch,'Código IATA termina en '+ch],.4,c=>c.p.endsWith(ch),airFact)),
+ U('a_vowel','code',AIRK.code,['IATA contains a vowel','Code IATA contient une voyelle','Código IATA contiene una vocal'],.8,c=>/[AEIOU]/.test(c.p),airFact),
+ U('a_repeat','code',AIRK.code,['IATA has repeated letters','Code IATA avec lettres répétées','Código IATA con letras repetidas'],.7,c=>new Set(c.p).size<3,airFact),
+ ...[2,3].map(n=>U('a_rw'+n,'runway',AIRK.runway,[n+'+ runways',n+' pistes ou plus',n+' pistas o más'],1,c=>c.runways>=n,airFact)),
+ ...[3000,4000].map(n=>U('a_long'+n,'runway',AIRK.runway,['Runway longer than '+n+' m','Piste de plus de '+n+' m','Pista de más de '+n+' m'],1,c=>c.longest>n,airFact)),
+ ...[1000,1500].map(n=>U('a_elev'+n,'elev',AIRK.elev,['Above '+n+' m','Plus de '+n+' m','Más de '+n+' m'],.8,c=>c.elev!=null&&c.elev>n,airFact)),
+ U('a_below','elev',AIRK.elev,['Below sea level','Sous le niveau de la mer','Bajo el nivel del mar'],.5,c=>c.elev!=null&&c.elev<0,airFact),
+ ...[5,10,25,50].map(n=>U('a_pax'+n,'traffic',AIRK.traffic,[n+'M+ passengers in 2025',n+' M+ de passagers en 2025',n+' M+ de pasajeros en 2025'],1,c=>c.pop>=n*1000000,c=>fmt(c.pop)+' passengers (2025)')),
+ U('a_5cont','routes',AIRK.routes,['Non-stop flights to 5+ continents','Vols sans escale vers 5 continents ou plus','Vuelos directos a 5 continentes o más'],.8,c=>c.cont5===true,c=>c.continents.join(', '))
+];
 let CATS=CATS_CA;
 let CAT=Object.fromEntries(CATS.map(c=>[c.id,c]));
 const lab=id=>{const a=CAT[id].l;return a[LI()]??a[0]},kick=id=>{const a=CAT[id].k;return a[LI()]??a[0]};
@@ -357,7 +386,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)rollover()
 // Smoothed pick rate: the real share of players who chose this answer, blended with a
 // population-based estimate while few have played (K = weight of the estimate, in players).
 const MINP=5,K=5;
-function estRate(cell,ci){const s=G.sets[cell];const w=i=>Math.pow(CITIES[i].pop,.6);const tot=s.reduce((a,i)=>a+w(i),0);return 100*w(ci)/tot}
+function estRate(cell,ci){const s=G.sets[cell];const w=i=>Math.pow(Math.max(1,CITIES[i].pop),.6);const tot=s.reduce((a,i)=>a+w(i),0);return 100*w(ci)/tot}
 const liveN=cell=>dated()?LIVE.cellN[cell]:0,liveC=(cell,ci)=>dated()?(LIVE.counts[cell][ckey(ci)]||0):0;
 function rate(cell,ci){return (liveC(cell,ci)+K*estRate(cell,ci)/100)/(liveN(cell)+K)*100}
 const isUnique=(cell,ci)=>liveN(cell)>=MINP&&liveC(cell,ci)<=1;
@@ -487,7 +516,7 @@ document.getElementById('archDate').addEventListener('change',load);
 let DB=null,UID=null,meDoc=null,meExists=false,writing=Promise.resolve(),ALL=[],ME=null,dbState='off',lbTab='today';
 let LIVE={players:0,cellN:Array(9).fill(0),counts:Array.from({length:9},()=>({}))};
 const ckey=i=>CITIES[i].n+'|'+CITIES[i].p;let KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]));
-function useData(){if(!EDC().ready)return;CITIES=DATA[ED];CATS=ED==='us'?CATS_US:ED==='global'?CATS_GL:CATS_CA;CAT=Object.fromEntries(CATS.map(c=>[c.id,c]));INDEX=CITIES.map((c,i)=>({i,keys:[c.n,...c.a].map(norm)}));KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]))}
+function useData(){if(!EDC().ready)return;CITIES=DATA[ED];CATS=ED==='air'?CATS_AIR:ED==='us'?CATS_US:ED==='global'?CATS_GL:CATS_CA;CAT=Object.fromEntries(CATS.map(c=>[c.id,c]));INDEX=CITIES.map((c,i)=>({i,keys:[c.n,...c.a].map(norm)}));KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]))}
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function drawLive(){const el=document.getElementById('live');el.textContent=!dated()||(dbState!=='on'&&dbState!=='readonly')?'':LIVE.players===1?T('player1'):T('players',{n:LIVE.players})}
 function aggregate(){const counts=Array.from({length:9},()=>({})),cellN=Array(9).fill(0);let players=0;
@@ -560,7 +589,7 @@ function syncPlay(){if(!meDoc||dbState==='readonly')return;const t=totals();
 
 // ---------- world map (Global edition) ----------
 const mx=c=>((c.lon+180)*2).toFixed(1),my=c=>((90-c.lat)*2).toFixed(1);
-function drawMap(){const p=document.getElementById('mapPanel');p.hidden=!(ED==='global'&&G);if(p.hidden)return;
+function drawMap(){const p=document.getElementById('mapPanel');p.hidden=!((ED==='global'||ED==='air')&&G);if(p.hidden)return;
   let h='';if(S.done){const seen=new Set(S.cells.filter(x=>x!=null));G.sets.flat().forEach(i=>{if(seen.has(i))return;seen.add(i);const c=CITIES[i];h+=`<circle class="alt" cx="${mx(c)}" cy="${my(c)}" r="1.8"/>`})}
   S.cells.forEach((v,i)=>{if(v==null)return;const c=CITIES[v];h+=`<g><title>${esc(c.n)}</title><circle class="pick" cx="${mx(c)}" cy="${my(c)}" r="5"/><text class="pickn" x="${mx(c)}" y="${my(c)}">${i+1}</text></g>`});
   document.getElementById('mapDots').innerHTML=h;document.getElementById('mapSvg').setAttribute('aria-label',T('mapTitle')+': '+S.cells.filter(x=>x!=null).map(v=>CITIES[v].n).join(', '))}
@@ -632,7 +661,7 @@ document.getElementById('fbForm').addEventListener('submit',async e=>{e.preventD
 function drawEdRow(){document.getElementById('edRow').innerHTML=ED_ORDER.map(e=>`<button type="button" data-ed="${e}" aria-pressed="${e===ED}"><span aria-hidden="true">${EDITIONS[e].flag}</span>${esc(edShort(e))}${EDITIONS[e].ready?'':` <span class="dev">${T('edSoon')}</span>`}</button>`).join('');
   document.querySelectorAll('#edRow button').forEach(b=>b.addEventListener('click',()=>setEdition(b.dataset.ed,true)))}
 function drawBrand(){const [a,b]=EDC().brand;document.getElementById('brandH1').innerHTML=`${a}<span class="doku">${b}</span>${ED==='ca'?'':`<span class="edn"> – ${esc(edName(ED))}</span>`} <span class="flagemoji" role="img" aria-label="${esc(edName(ED))}">${EDC().flag}</span>`;
-  document.getElementById('subLine').textContent=ED==='ca'?T('sub'):ED==='air'?'Airport edition · coming soon':EDC().ready?T('sub'):T('subOther',{name:edName(ED)});
+  document.getElementById('subLine').textContent=ED==='ca'?T('sub'):ED==='air'?(EDC().ready?'Airport edition · name an airport that matches both clues':'Airport edition · coming soon'):EDC().ready?T('sub'):T('subOther',{name:edName(ED)});
   document.getElementById('leaves').textContent=ED==='ca'?'🍁 🇨🇦 🍁':EDC().flag;
   document.querySelectorAll('.brandName').forEach(el=>el.textContent=ED==='ca'?'Canadoku':'Citydoku')}
 function drawSoon(){const c=EDC();document.getElementById('soonTitle').textContent=brandName();document.getElementById('soonLead').textContent=c.lead;
