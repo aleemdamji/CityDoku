@@ -11,8 +11,10 @@ create unique index if not exists players_username_lc_key on public.players (use
 create index if not exists players_updated_at_idx on public.players (updated_at desc);
 
 alter table public.players enable row level security;
--- Leaderboards and pick-rate rarity need everyone's games, so rows are public to read.
-create policy "players are readable by everyone" on public.players for select using (true);
+-- Leaderboards and pick-rate rarity need everyone's games, so rows are public to read,
+-- except players who chose a private profile (data.private = true): only they can read their row.
+create policy "players are readable by everyone" on public.players for select
+  using (auth.uid() = id or coalesce((data->>'private')::boolean, false) = false);
 create policy "players insert their own row" on public.players for insert with check (auth.uid() = id);
 create policy "players update their own row" on public.players for update using (auth.uid() = id) with check (auth.uid() = id);
 create policy "players delete their own row" on public.players for delete using (auth.uid() = id);
@@ -26,6 +28,12 @@ create table if not exists public.feedback (
 );
 alter table public.feedback enable row level security;
 create policy "signed-in players can send feedback" on public.feedback for insert to authenticated with check (auth.uid() = user_id);
+
+-- Size caps so one account can't bloat everyone's leaderboard download
+alter table public.players drop constraint if exists players_data_size,
+  add constraint players_data_size check (pg_column_size(data) < 1048576);
+alter table public.feedback drop constraint if exists feedback_data_size,
+  add constraint feedback_data_size check (pg_column_size(data) < 16384);
 
 -- Live leaderboard updates
 alter publication supabase_realtime add table public.players;
