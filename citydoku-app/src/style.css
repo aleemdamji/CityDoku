@@ -180,3 +180,19 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
 .kofi-support[hidden]{display:none}
 .kofi-link{text-decoration:none;display:inline-flex;align-items:center;gap:6px;min-height:42px}
 .kofi-link:focus-visible{outline:3px solid var(--sign);outline-offset:3px}
+
+/* Quality Lab */
+.cdq-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);padding:2px 4px}
+.cdq-bar.cdq-warn #cdqStat{color:var(--red);font-weight:600}
+.cdq-btns{display:flex;gap:12px;margin-left:auto}
+dialog#cdqDlg .cdq{display:flex;flex-direction:column;gap:10px}
+.cdq-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:0}
+.cdq-stats div{background:var(--wash);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.cdq-stats dt{font-size:.75rem;color:var(--muted)}.cdq-stats dd{margin:0;font-size:1.3rem;font-weight:700}
+.cdq-h{margin-top:4px}
+.cdq-ach{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+.cdq-ach li{opacity:.55}.cdq-ach li.on{opacity:1;color:var(--red);font-weight:600}
+.cdq-row,.cdq-actions{display:flex;gap:8px;flex-wrap:wrap}
+.cdq-actions{justify-content:flex-end}
+.cdq-disc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.cdq-rar{margin-top:8px;font-size:.85rem}.cdq-rar ul{margin:6px 0 0;padding-left:18px}
