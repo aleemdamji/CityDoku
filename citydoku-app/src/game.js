@@ -350,11 +350,11 @@ function load(){
   document.getElementById('fb').innerHTML='';
   if(dated()){
     curDate=mode==='daily'?todayET():(document.getElementById('archDate').value||prevDay(todayET()));
-    key=ED+':daily:'+curDate;G=generate((EDC().seed||ED+'-')+curDate,dailyLevel(curDate),legacyCaDay(curDate));S=store.get(key,null)||freshState();S.log=S.log||[];restoreFromDb();
+    key=ED+':daily:'+curDate;G=generate((EDC().seed||ED+'-')+curDate,dailyLevel(curDate),legacyCaDay(curDate));S=store.get(key,null)||freshState();S.log=S.log||[];if(Array.isArray(S.ck)&&S.ck.length===9)S.cells=S.ck.map(k=>typeof k==='string'&&Object.hasOwn(KEYIDX,k)?KEYIDX[k]:null);restoreFromDb();
   }else{const lvl=document.getElementById('diff').value;curDate=null;key=null;G=generate('free-'+Date.now()+Math.random(),lvl);S=freshState()}
   aggregate();render();
 }
-function save(){if(key)store.set(key,S)}
+function save(){if(key){S.ck=S.cells.map(x=>x==null?null:ckey(x));store.set(key,S)}}
 // New day while the tab or iOS app was in the background: reload so the new daily grid shows.
 function rollover(){if(mode==='daily'&&curDate&&curDate!==todayET())location.reload()}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)rollover()});window.addEventListener('focus',rollover);setInterval(()=>{if(!S||S.done||!S.cells.some(x=>x!=null))rollover()},60000);
@@ -398,6 +398,7 @@ function render(){
   if(S.done){const st=statsOf(myDays());document.getElementById('sCorrect').textContent=`${t.n}/9`;document.getElementById('sRarity').textContent=t.final;
     document.getElementById('sStreak').textContent=st.streak;document.getElementById('freezeNote').textContent=st.freezeLeft?T('freezeLeft'):T('freezeUsed');
     document.getElementById('endTitle').textContent=t.n===9?T('perfect'):S.gaveUp?T('closed'):T('outOf');drawSocial()}
+  document.dispatchEvent(new CustomEvent('cd:render'));
 }
 function chips(i){const r=Math.floor(i/3),c=i%3;return`<span class="chip">${lab(G.rows[r])}</span><span class="chip">${lab(G.cols[c])}</span>`}
 function drawLangs(){const el=document.getElementById('langTabs');el.innerHTML=EDC().langs.map(l=>`<button type="button" lang="${l}" data-l="${l}" aria-pressed="${l===LANG}">${l.toUpperCase()}</button>`).join('');el.hidden=EDC().langs.length<2;el.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.l)))}
@@ -419,7 +420,9 @@ document.getElementById('dlg').addEventListener('close',()=>{const el=document.q
 function search(v){const n=norm(v);if(!n)return[];const used=new Set(S.cells.filter(x=>x!=null));
   const sc=INDEX.map(o=>{let s=0;for(const k of o.keys){if(k===n)s=Math.max(s,3);else if(k.startsWith(n))s=Math.max(s,2);else if(k.includes(n))s=Math.max(s,1)}return{...o,s,used:used.has(o.i)}}).filter(o=>o.s);
   return sc.sort((a,b)=>b.s-a.s||CITIES[b.i].pop-CITIES[a.i].pop).slice(0,8)}
-function drawHits(){const ul=document.getElementById('results');ul.innerHTML=hits.map((h,k)=>{const c=CITIES[h.i];return`<li role="option" aria-selected="${k===act}"><button type="button" class="${k===act?'act':''}" data-k="${k}" aria-disabled="${h.used}"><span>${esc(c.n)}${h.used?' · '+T('used'):''}</span><span class="pv">${c.p}</span></button></li>`}).join('')||(document.getElementById('q').value?`<li class="foot" style="padding:8px">${T('noCity')}</li>`:'');
+const DUPS={};function dupTag(c){if(!DUPS[ED]){const m={};CITIES.forEach(x=>{const k=norm(x.n);m[k]=(m[k]||0)+1});DUPS[ED]=m}return DUPS[ED][norm(c.n)]>1?' · '+Math.round(c.pop/1000).toLocaleString(LANG==='fr'?'fr-CA':'en-CA')+'k':''}
+function hitAlias(c){const q=norm(document.getElementById('q').value);if(!q||norm(c.n).includes(q))return'';const a=c.a.find(x=>norm(x).includes(q));return a?` <small>(${esc(a)})</small>`:''}
+function drawHits(){const ul=document.getElementById('results');ul.innerHTML=hits.map((h,k)=>{const c=CITIES[h.i];return`<li role="option" aria-selected="${k===act}"><button type="button" class="${k===act?'act':''}" data-k="${k}" aria-disabled="${h.used}"><span>${esc(c.n)}${hitAlias(c)}${h.used?' · '+T('used'):''}</span><span class="pv">${esc(PV(c.p))}${dupTag(c)}</span></button></li>`}).join('')||(document.getElementById('q').value?`<li class="foot" style="padding:8px">${T('noCity')}</li>`:'');
   ul.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>choose(+b.dataset.k)))}
 document.getElementById('q').addEventListener('input',e=>{hits=search(e.target.value);act=0;drawHits()});
 document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='ArrowDown'){act=Math.min(act+1,hits.length-1);drawHits();e.preventDefault()}else if(e.key==='ArrowUp'){act=Math.max(act-1,0);drawHits();e.preventDefault()}else if(e.key==='Enter'){e.preventDefault();if(hits.length)choose(act)}});
@@ -437,7 +440,7 @@ function finish(){S.done=true;if(dated()){const dd=store.get(ED+':doneDays',{});
 function showAnswers(i){ansCell=i;const s=[...G.sets[i]].sort((a,b)=>rate(i,b)-rate(i,a));document.getElementById('ansCrit').innerHTML=chips(i);
   document.getElementById('ansTitle').textContent=T('ansTitle',{n:s.length})+'. '+(liveN(i)>=MINP?T('ansReal',{n:liveN(i)}):T('ansEst'));
   document.getElementById('ansList').innerHTML=s.map(x=>`<li><span>${esc(CITIES[x].n)}, ${CITIES[x].p}${S.cells[i]===x?' ✓ '+T('you'):''}</span><span class="pct">${Math.max(1,Math.round(rate(i,x)))}%</span></li>`).join('');
-  document.getElementById('ansDlg').showModal()}
+  document.dispatchEvent(new CustomEvent('cd:answers',{detail:{cell:i}}));document.getElementById('ansDlg').showModal()}
 function giveUp(){if(S.done)return;S.gaveUp=true;finish();save();render();if(dated())syncPlay()}
 document.getElementById('giveUp2').addEventListener('click',giveUp);
 // ---------- sharing ----------
@@ -511,7 +514,7 @@ async function initDb(){
   DB.collection('plays').limit(1000).onSnapshot(snap=>{
     if(!snap.metadata.fromCache)clearTimeout(timer);if(dbState!=='readonly')dbState='on';
     ALL=snap.docs.filter(d=>d.exists).map(d=>{const v=d.data();return{...(v&&typeof v==='object'&&!Array.isArray(v)?v:{}),id:d.id}});
-    ME=UID?ALL.find(x=>x.id===UID)||null:null;if(ME)meExists=true;
+    ME=UID?ALL.find(x=>x.id===UID)||null:null;if(ME)meExists=true;window.CDQ_SYNC?.flush();
     if(EDC().ready&&G){restoreFromDb();aggregate();render();fillArchive()}drawAcct()},
     e=>{clearTimeout(timer);dbState='slow';drawAcct()});
 }
@@ -561,7 +564,7 @@ function restoreFromDb(){ // cross-device: use the saved play if this browser ha
 function syncPlay(){if(!meDoc||dbState==='readonly')return;const t=totals();
   const day={g:G.rows.join(',')+'|'+G.cols.join(','),cells:S.cells.map(x=>x==null?null:ckey(x)),log:S.log||[],done:!!S.done,gaveUp:!!S.gaveUp,late:mode!=='daily',n:t.n,rarity:S.done?t.final:null,u:t.u,ts:Date.now()};
   const data={days:{[dk(curDate)]:day}};if(!day.late)data.last=dk(curDate);
-  write(data).catch(e=>{if(e?.code==='invalid_argument'){dbState='readonly';drawAcct()}})}
+  const qk=window.CDQ_SYNC?.add(data);write(data).then(()=>window.CDQ_SYNC?.ok(qk)).catch(e=>{if(e?.code==='invalid_argument'){dbState='readonly';drawAcct();window.CDQ_SYNC?.ok(qk)}})}
 
 // ---------- world map (Global edition) ----------
 const mx=c=>((c.lon+180)*2).toFixed(1),my=c=>((90-c.lat)*2).toFixed(1);
@@ -661,4 +664,6 @@ initDb();
 if(JOIN0)checkJoinHash(JOIN0);
 
 document.querySelector('.map .land')?.setAttribute('d',LAND);
+function withEd(e,fn){if(e===ED)return fn();const old=ED;ED=e;useData();try{return fn()}finally{ED=old;useData()}}
+window.CDQ={get ED(){return ED},get LANG(){return LANG},get mode(){return mode},get G(){return G},get S(){return S},get curDate(){return curDate},get CITIES(){return CITIES},get CAT(){return CAT},get ME(){return ME},get UID(){return UID},EDITIONS,ED_ORDER,DATA,GLC,withEd,generate,sigFor,dailyLevel,legacyCaDay,hasMatching,answersFor,hashStr,ckey,lab,kick,rate,estRate,liveN,liveC,totals,statsOf,todayET,prevDay,puzzleNo,PV,esc,norm,T,write,store,dated,edName,syncPlay,SEED:e=>EDITIONS[e].seed||e+'-'};
 window.CD={T:(k,v)=>T(k,v),toast:m=>toast(m),get LANG(){return LANG},get UID(){return UID}};
