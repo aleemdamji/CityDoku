@@ -14,7 +14,7 @@ alter table public.players enable row level security;
 -- Leaderboards and pick-rate rarity need everyone's games, so rows are public to read,
 -- except players who chose a private profile (data.private = true): only they can read their row.
 create policy "players are readable by everyone" on public.players for select
-  using (auth.uid() = id or coalesce((data->>'private')::boolean, false) = false);
+  using (auth.uid() = id or data->'private' is distinct from 'true'::jsonb);
 create policy "players insert their own row" on public.players for insert with check (auth.uid() = id);
 create policy "players update their own row" on public.players for update using (auth.uid() = id) with check (auth.uid() = id);
 create policy "players delete their own row" on public.players for delete using (auth.uid() = id);
