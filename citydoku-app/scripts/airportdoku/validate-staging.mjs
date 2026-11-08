@@ -19,8 +19,16 @@ for(const a of airports){
     issues.push('Bad coordinates '+a.iata);
   if(a.pop!==null&&(!Number.isSafeInteger(a.pop)||a.pop<0||a.trafficYear!==2025||!a.trafficSource))
     issues.push('Bad passenger evidence '+a.iata);
-  if(a.cap!==null||a.island!==null||a.runways!==null||a.longest!==null||a.cont5!==null||a.releaseEligible!==false)
-    issues.push('Unapproved staging claim '+a.iata);
+  if(a.cap!==null||a.island!==null||a.cont5!==null||a.releaseEligible!==false)
+    issues.push('Unapproved classification '+a.iata);
+  if(a.runways!==null && (!Number.isInteger(a.runways)||a.runways<1||!Number.isFinite(a.longest)||a.longest<1||!a.runwaySource))
+    issues.push('Invalid runway source or dimensions '+a.iata);
+  if(a.runways===null && a.longest!==null)
+    issues.push('Longest runway without known runway count '+a.iata);
+  if(!Number.isInteger(Number(a.ourairportsId))||!a.ourairportsId)
+    issues.push('Missing OurAirports ID '+a.iata);
+  if(typeof a.capitalCandidate!=='boolean'||typeof a.islandCandidate!=='boolean')
+    issues.push('Missing curated-review candidate flag '+a.iata);
 }
 if(airports.length!==manifest.baselineCount)issues.push('Mismatch with manifest count');
 if(airports.filter(a=>a.pop!==null).length!==manifest.traffic2025Verified)issues.push('Traffic count mismatch');
@@ -57,7 +65,7 @@ for(let seed=1;seed<=100;seed++){
   }
   if(!found)issues.push('Could not generate geography/code Mixed test puzzle for seed '+seed);
 }
-const result={kind:'staging_checks_only',releaseReady:false,records:airports.length,countries:countries.size,continents:continentCounts,
+const result={kind:'staging_checks_only',runwayRecords:airports.filter(a=>a.runways!==null).length,islandCandidates:airports.filter(a=>a.islandCandidate).length,capitalCandidates:airports.filter(a=>a.capitalCandidate).length,releaseReady:false,records:airports.length,countries:countries.size,continents:continentCounts,
   passedIdentityChecks:issues.filter(s=>!s.startsWith('Could not generate')).length===0,
   simulatedMixedGrids:valid,simulatedSeeds:100,distinctAnswerChecks:distinctChecks,maxTries,
   examples,errors:issues};
