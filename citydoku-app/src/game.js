@@ -7,6 +7,12 @@ const DATA={ca:CA,us:US,global:GL};const GLC=Object.fromEntries(DATA.global.map(
 
 // ---------- editions ----------
 const EDITIONS={
+ air:{flag:'✈️',name:{en:'Airports',fr:'Aéroports',es:'Aeropuertos'},brand:['Airport','doku'],ready:false,langs:['en','fr','es'],hash:'airports',img:'#18789C',seed:'airportdoku-',launch:'2026-11-08',leaf:'✈️',
+  title:'Airportdoku',lead:'A 3×3 airport trivia challenge. Name an airport that fits both clues using its IATA code or airport name.',
+  cities:'Major and medium-sized airports with scheduled commercial passenger service. Temporarily suspended airports are excluded. Airports are separate answers, even if they serve the same city.',
+  cats:['Country, continent and hemisphere','On an island; serves a national capital','IATA code patterns','Elevation and number or length of runways','2025 annual passengers: 5M+, 10M+, 25M+, 50M+','Non-stop scheduled passenger service to 5+ continents'],
+  data:'OurAirports; official airport and regulator reports for 2025 passenger counts; verified route schedules. Awaiting complete source audit before launch.',
+  sample:[['Geography','Europe'],['Passengers','25M+ in 2025'],['Air service','5+ continents'],['Code','IATA starts with L'],['Infrastructure','3+ runways'],['Status','Serves a capital']]},
  global:{flag:'🌍',name:{en:'Global',fr:'Monde'},brand:['City','doku'],ready:true,langs:['en','fr','es'],hash:'global',img:'#1D5FA8',seed:'citydoku-global-',launch:'2026-11-01',leaf:'🌍',
   title:'Citydoku Global',lead:'Cities from every continent. Name a city that matches a country, a continent, a population, a coastline or an Olympic past.',
   cities:'Every national capital plus cities with 1 million+ people (about 650 cities in 190+ countries).',
@@ -45,12 +51,12 @@ const EDITIONS={
   data:'National Bureau of Statistics (7th National Census, 2020), city statistical yearbooks, China Railway.',
   sample:[['Province','Guangdong'],['Geography','On the Yangtze'],['Transit','Has a metro'],['History','Former capital'],['Population','Over 10 million'],['Status','Provincial capital']]},
 };
-const ED_ORDER=['global','ca','us']; // hidden for now: 'au','uk','in','cn' (configs kept below)
+const ED_ORDER=['global','ca','us','air']; // hidden for now: 'au','uk','in','cn' (configs kept below)
 let ED='global';
 const EDC=()=>EDITIONS[ED];
 const edName=e=>(EDITIONS[e].name[LANG]||EDITIONS[e].name.en);
 const edShort=e=>(EDITIONS[e].short?.[LANG]||EDITIONS[e].short?.en||edName(e));
-const brandName=()=>ED==='ca'?'Canadoku':'Citydoku – '+edName(ED);
+const brandName=()=>ED==='ca'?'Canadoku':ED==='air'?'Airportdoku':'Citydoku – '+edName(ED);
 const dk=ds=>ED+':'+ds;
 function edDays(days){const p=ED+':';return Object.fromEntries(Object.entries(days||{}).filter(([k])=>k.startsWith(p)).map(([k,v])=>[k.slice(p.length),v]))}
 // ---------- language ----------
@@ -626,7 +632,7 @@ document.getElementById('fbForm').addEventListener('submit',async e=>{e.preventD
 function drawEdRow(){document.getElementById('edRow').innerHTML=ED_ORDER.map(e=>`<button type="button" data-ed="${e}" aria-pressed="${e===ED}"><span aria-hidden="true">${EDITIONS[e].flag}</span>${esc(edShort(e))}${EDITIONS[e].ready?'':` <span class="dev">${T('edSoon')}</span>`}</button>`).join('');
   document.querySelectorAll('#edRow button').forEach(b=>b.addEventListener('click',()=>setEdition(b.dataset.ed,true)))}
 function drawBrand(){const [a,b]=EDC().brand;document.getElementById('brandH1').innerHTML=`${a}<span class="doku">${b}</span>${ED==='ca'?'':`<span class="edn"> – ${esc(edName(ED))}</span>`} <span class="flagemoji" role="img" aria-label="${esc(edName(ED))}">${EDC().flag}</span>`;
-  document.getElementById('subLine').textContent=ED==='ca'?T('sub'):EDC().ready?T('sub'):T('subOther',{name:edName(ED)});
+  document.getElementById('subLine').textContent=ED==='ca'?T('sub'):ED==='air'?'Airport edition · coming soon':EDC().ready?T('sub'):T('subOther',{name:edName(ED)});
   document.getElementById('leaves').textContent=ED==='ca'?'🍁 🇨🇦 🍁':EDC().flag;
   document.querySelectorAll('.brandName').forEach(el=>el.textContent=ED==='ca'?'Canadoku':'Citydoku')}
 function drawSoon(){const c=EDC();document.getElementById('soonTitle').textContent=brandName();document.getElementById('soonLead').textContent=c.lead;
