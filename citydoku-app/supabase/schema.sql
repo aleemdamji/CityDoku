@@ -51,6 +51,68 @@ alter table public.players drop constraint if exists players_username_ok,
       and data->>'username' ~ '^[A-Za-z0-9_-]{3,20}$'
       and data->>'username_lc' = lower(data->>'username')));
 
+-- Merge saves on the server so two devices never erase each other's days or leagues.
+create or replace function public.merge_my_data(patch jsonb) returns jsonb
+language plpgsql security invoker set search_path = public as $$
+declare uid uuid := auth.uid(); result jsonb;
+begin
+  if uid is null then raise exception 'not signed in' using errcode = '42501'; end if;
+  if patch is null or jsonb_typeof(patch) <> 'object' then raise exception 'bad patch' using errcode = '22023'; end if;
+  insert into public.players as p (id, data) values (uid, patch)
+  on conflict (id) do update set data =
+    (p.data || (excluded.data - 'days' - 'leagues'))
+    || jsonb_build_object(
+      'days', (case when jsonb_typeof(p.data->'days') = 'object' then p.data->'days' else '{}'::jsonb end)
+           || (case when jsonb_typeof(excluded.data->'days') = 'object' then excluded.data->'days' else '{}'::jsonb end),
+      'leagues', (case when jsonb_typeof(p.data->'leagues') = 'object' then p.data->'leagues' else '{}'::jsonb end)
+           || (case when jsonb_typeof(excluded.data->'leagues') = 'object' then excluded.data->'leagues' else '{}'::jsonb end))
+  returning p.data into result;
+  return result;
+end $$;
+revoke all on function public.merge_my_data(jsonb) from public, anon;
+grant execute on function public.merge_my_data(jsonb) to authenticated;
+
+-- League registry: the code's name is fixed by its creator and can't be renamed or listed.
+create table if not exists public.leagues (
+  code text primary key check (code ~ '^[A-Z0-9]{6}$'),
+  name text not null check (char_length(name) between 3 and 30),
+  owner uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.leagues enable row level security;
+drop policy if exists "players create their own leagues" on public.leagues;
+create policy "players create their own leagues" on public.leagues for insert to authenticated with check (owner = auth.uid());
+create or replace function public.league_name(p_code text) returns text
+language sql stable security definer set search_path = public as $$
+  select name from public.leagues where code = upper(p_code);
+$$;
+revoke all on function public.league_name(text) from public;
+grant execute on function public.league_name(text) to anon, authenticated;
+
+-- Rate limits: feedback (10/hour, 30/day per player) and leagues (20 per player).
+create index if not exists feedback_user_time_idx on public.feedback (user_id, created_at desc);
+create or replace function public.feedback_rate_limit() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from public.feedback where user_id = new.user_id and created_at > now() - interval '1 hour') >= 10
+     or (select count(*) from public.feedback where user_id = new.user_id and created_at > now() - interval '1 day') >= 30 then
+    raise exception 'Too much feedback, try again later' using errcode = 'P0001';
+  end if;
+  return new;
+end $$;
+drop trigger if exists feedback_rate_limit on public.feedback;
+create trigger feedback_rate_limit before insert on public.feedback for each row execute function public.feedback_rate_limit();
+create or replace function public.leagues_limit() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from public.leagues where owner = new.owner) >= 20 then
+    raise exception 'League limit reached' using errcode = 'P0001';
+  end if;
+  return new;
+end $$;
+drop trigger if exists leagues_limit on public.leagues;
+create trigger leagues_limit before insert on public.leagues for each row execute function public.leagues_limit();
+
 -- Live leaderboard updates
 alter publication supabase_realtime add table public.players;
 
