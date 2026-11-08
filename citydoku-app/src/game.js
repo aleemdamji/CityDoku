@@ -299,6 +299,7 @@ function hasMatching(sets){const match=new Map();
 const NESTED=[['p3','p4'],['via','cn']];
 const MIX_FROM='2026-11-08';const dailyLevel=ds=>ds>=MIX_FROM?'mixed':'medium';
 const DIFF={mixed:{min:1,max:60,mix:true},easy:{min:6,max:60,cats:c=>c.g!=='name'&&!c.rare&&!['pwhl','u2','sl','p4','cn','rt'].includes(c.id)},medium:{min:3,max:40},hard:{min:1,max:30,needSmall:3}};
+const SIGC={};function sigFor(ds){const k=ED+':'+ds;if(!(k in SIGC)){const g=generate((EDC().seed||ED+'-')+ds,dailyLevel(ds));SIGC[k]=g.rows.join(',')+'|'+g.cols.join(',')}return SIGC[k]}
 function generate(seedStr,level){
   const r=rng(hashStr(seedStr)),d=DIFF[level],pool=CATS.filter(d.cats||(()=>true));
   for(let tries=0;tries<20000;tries++){
@@ -484,7 +485,7 @@ function useData(){if(!EDC().ready)return;CITIES=DATA[ED];CATS=ED==='us'?CATS_US
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function drawLive(){const el=document.getElementById('live');el.textContent=!dated()||(dbState!=='on'&&dbState!=='readonly')?'':LIVE.players===1?T('player1'):T('players',{n:LIVE.players})}
 function aggregate(){const counts=Array.from({length:9},()=>({})),cellN=Array(9).fill(0);let players=0;
-  if(curDate)for(const d of ALL){const day=d.days?.[dk(curDate)];if(!day||!Array.isArray(day.cells))continue;players++;
+  if(curDate)for(const d of ALL){const day=d.days?.[dk(curDate)];if(!day||!Array.isArray(day.cells))continue;if(day.g&&G&&day.g!==G.rows.join(',')+'|'+G.cols.join(','))continue;players++;
     day.cells.forEach((k,i)=>{if(typeof k==='string'&&Object.hasOwn(KEYIDX,k)&&i<9){counts[i][k]=(counts[i][k]||0)+1;cellN[i]++}})}
   LIVE={players,cellN,counts}}
 function nameOf(d){if(!d?.username)return null;const same=ALL.filter(x=>x.username_lc===d.username_lc).sort((a,b)=>(a.nameAt||0)-(b.nameAt||0));
@@ -517,7 +518,7 @@ function drawLB(){const body=document.getElementById('lbBody');const ds=todayET(
   if(dbState!=='on'&&dbState!=='readonly'){body.innerHTML=`<p class="foot" style="margin:0">${dbState==='none'?T('lbSignIn'):T('lbLoading')}</p>`;return}
   let rows,head,note;
   if(lbTab==='today'){
-    const K2=dk(ds);rows=BASE.filter(d=>nameOf(d)&&d.days?.[K2]?.done&&!d.days[K2].late).map(d=>({id:d.id,name:nameOf(d),n:d.days[K2].n,r:d.days[K2].rarity,u:d.days[K2].u||0})).sort((a,b)=>b.n-a.n||a.r-b.r);
+    const K2=dk(ds);rows=BASE.filter(d=>nameOf(d)&&d.days?.[K2]?.done&&!d.days[K2].late&&(!d.days[K2].g||d.days[K2].g===sigFor(ds))).map(d=>({id:d.id,name:nameOf(d),n:d.days[K2].n,r:d.days[K2].rarity,u:d.days[K2].u||0})).sort((a,b)=>b.n-a.n||a.r-b.r);
     head=`<tr><th class="rk">#</th><th>${T('cPlayer')}</th><th class="num">${T('cCorrect')}</th><th class="num">${T('cUniq')}</th><th class="num">${T('cRarity')}</th></tr>`;
     rows=rows.map((x,k)=>`<tr class="${x.id===UID?'me':''}"><td class="rk">${k+1}</td><td>${esc(x.name)}</td><td class="num">${+x.n||0}/9</td><td class="num">${+x.u||0}</td><td class="num">${typeof x.r==='number'?x.r:'–'}</td></tr>`);note=T('lbNote');
   }else{
@@ -544,10 +545,10 @@ document.getElementById('notifyBtn').addEventListener('click',()=>{if(!meDoc||db
   write({plus:true}).then(()=>toast(T('notified'))).catch(()=>toast(T('saveFail')))});
 function restoreFromDb(){ // cross-device: use the saved play if this browser has none
   if(!ME||!curDate||!dated())return;const d=ME.days?.[dk(curDate)];
-  if(!d||!Array.isArray(d.cells)||S.cells.some(x=>x!=null)||S.guesses<9)return;
+  if(!d||!Array.isArray(d.cells)||S.cells.some(x=>x!=null)||S.guesses<9)return;if(d.g&&d.g!==G.rows.join(',')+'|'+G.cols.join(','))return;
   S.cells=d.cells.slice(0,9).map(k=>typeof k==='string'&&Object.hasOwn(KEYIDX,k)?KEYIDX[k]:null);S.log=Array.isArray(d.log)?d.log.slice(0,9):[];S.guesses=Math.max(0,9-S.log.length);S.done=!!d.done;S.gaveUp=!!d.gaveUp;save()}
 function syncPlay(){if(!meDoc||dbState==='readonly')return;const t=totals();
-  const day={cells:S.cells.map(x=>x==null?null:ckey(x)),log:S.log||[],done:!!S.done,gaveUp:!!S.gaveUp,late:mode!=='daily',n:t.n,rarity:S.done?t.final:null,u:t.u,ts:Date.now()};
+  const day={g:G.rows.join(',')+'|'+G.cols.join(','),cells:S.cells.map(x=>x==null?null:ckey(x)),log:S.log||[],done:!!S.done,gaveUp:!!S.gaveUp,late:mode!=='daily',n:t.n,rarity:S.done?t.final:null,u:t.u,ts:Date.now()};
   const data={days:{[dk(curDate)]:day}};if(!day.late)data.last=dk(curDate);
   write(data).catch(e=>{if(e?.code==='invalid_argument'){dbState='readonly';drawAcct()}})}
 
@@ -573,7 +574,8 @@ document.getElementById('remCal').addEventListener('click',async()=>{const [hh,m
 // Membership lives in each player's own doc: plays/<uid>.leagues = { CODE: {name, owner?, at} }
 let LG=store.get('league',''),lgMode='create';
 const myLeagues=()=>Object.entries(ME?.leagues||{}).filter(([,v])=>v&&v.name);
-function leagueName(code){for(const d of ALL){const l=d.leagues?.[code];if(l&&l.owner&&l.name)return l.name}return null}
+function leagueName(code){const l=ME?.leagues?.[code];return l&&typeof l.name==='string'?l.name:null}
+const LGDB=()=>DB&&DB.collection('leagues');
 function drawLeagues(){const sel=document.getElementById('lgSel'),mine=myLeagues();if(LG&&!mine.some(([k])=>k===LG))LG='';
   sel.innerHTML=`<option value="">${T('lgEveryone')}</option>`+mine.map(([k,v])=>`<option value="${esc(k)}" ${k===LG?'selected':''}>${esc(v.name)} · ${esc(k)}</option>`).join('');
   const acts=document.getElementById('lgActs');if(!LG){acts.innerHTML='';return}
@@ -589,11 +591,16 @@ function openLg(m,pref){if(!meDoc||dbState==='readonly'||dbState==='none'){toast
 document.getElementById('lgCreateOpen').addEventListener('click',()=>openLg('create'));
 document.getElementById('lgJoinOpen').addEventListener('click',()=>openLg('join'));
 document.getElementById('lgCancel').addEventListener('click',()=>document.getElementById('lgDlg').close());
-document.getElementById('lgForm').addEventListener('submit',e=>{e.preventDefault();const v=document.getElementById('lgInput').value.trim(),err=document.getElementById('lgErr');let code,data;
+document.getElementById('lgForm').addEventListener('submit',async e=>{e.preventDefault();const v=document.getElementById('lgInput').value.trim(),err=document.getElementById('lgErr');let code,data;
+  const btn=document.getElementById('lgSubmit');btn.disabled=true;try{
   if(lgMode==='create'){if(v.length<3||v.length>30){err.textContent=T('lgNameErr');return}
-    const AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';do{code=Array.from({length:6},()=>AB[Math.floor(Math.random()*AB.length)]).join('')}while(leagueName(code));
+    const AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let ok=false;
+    for(let i=0;i<5&&!ok;i++){code=Array.from({length:6},()=>AB[Math.floor(Math.random()*AB.length)]).join('');try{await LGDB().create(code,v);ok=true}catch(x){if(x?.code!=='taken'){err.textContent=T('saveFail');return}}}
+    if(!ok){err.textContent=T('saveFail');return}
     data={leagues:{[code]:{name:v,owner:true,at:Date.now()}},public:true}}
-  else{code=v.toUpperCase().replace(/[^A-Z0-9]/g,'');const nm=leagueName(code);if(!nm){err.textContent=T('lgNotFound');return}data={leagues:{[code]:{name:nm,at:Date.now()}},public:true}}
+  else{code=v.toUpperCase().replace(/[^A-Z0-9]/g,'');let nm=null;try{nm=/^[A-Z0-9]{6}$/.test(code)?await LGDB().name(code):null}catch(x){err.textContent=T('saveFail');return}
+    if(!nm){err.textContent=T('lgNotFound');return}data={leagues:{[code]:{name:nm,at:Date.now()}},public:true}}
+  }finally{btn.disabled=false}
   write(data).then(()=>{document.getElementById('lgDlg').close();LG=code;store.set('league',code);drawLeagues();drawLB();toast(lgMode==='create'?T('lgCreated',{code}):T('lgJoined',{name:data.leagues[code].name}))}).catch(()=>{err.textContent=T('saveFail')})});
 // ---------- feedback / corrections ----------
 // feedback/<userId>/items/<auto> = { type, city, message, context:{grid,date,row,col,lang}, ts } — only the owner and editors can read it
