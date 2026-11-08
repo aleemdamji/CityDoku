@@ -3,9 +3,9 @@ import { sb, deleteAccount } from './backend.js';
 import { NATIVE } from './native.js';
 
 const TX = {
-  en: { title: 'Sign in to Citydoku', help: 'Save your scores and streaks, pick a username, join friend leagues and play on any device.', apple: 'Continue with Apple', google: 'Continue with Google', or: 'or', email: 'Email', send: 'Email me a sign-in link', cancel: 'Cancel', sent: 'Check your email for a sign-in link.', bad: 'Enter a valid email address.', fail: 'Sign-in didn’t work. Try again in a moment.', privacy: 'Privacy policy', del: 'Delete account', delQ: 'Delete your account and all your scores? This can’t be undone.', delDone: 'Your account was deleted.' },
-  fr: { title: 'Se connecter à Citydoku', help: 'Sauvegarde tes scores et tes séries, choisis un nom d’utilisateur, rejoins des ligues et joue sur tous tes appareils.', apple: 'Continuer avec Apple', google: 'Continuer avec Google', or: 'ou', email: 'Courriel', send: 'M’envoyer un lien de connexion', cancel: 'Annuler', sent: 'Regarde tes courriels : on t’a envoyé un lien de connexion.', bad: 'Entre une adresse courriel valide.', fail: 'La connexion n’a pas fonctionné. Réessaie dans un moment.', privacy: 'Politique de confidentialité', del: 'Supprimer mon compte', delQ: 'Supprimer ton compte et tous tes scores? C’est irréversible.', delDone: 'Ton compte a été supprimé.' },
-  es: { title: 'Inicia sesión en Citydoku', help: 'Guarda tus puntajes y rachas, elige un nombre de usuario, únete a ligas y juega en cualquier dispositivo.', apple: 'Continuar con Apple', google: 'Continuar con Google', or: 'o', email: 'Correo electrónico', send: 'Enviarme un enlace de acceso', cancel: 'Cancelar', sent: 'Revisa tu correo: te enviamos un enlace de acceso.', bad: 'Escribe un correo válido.', fail: 'No se pudo iniciar sesión. Inténtalo de nuevo en un momento.', privacy: 'Política de privacidad', del: 'Eliminar cuenta', delQ: '¿Eliminar tu cuenta y todos tus puntajes? No se puede deshacer.', delDone: 'Tu cuenta fue eliminada.' },
+  en: { title: 'Sign in to Citydoku', help: 'Save your scores and streaks, pick a username, join friend leagues and play on any device.', apple: 'Continue with Apple', google: 'Continue with Google', facebook: 'Continue with Facebook', or: 'or', email: 'Email', send: 'Email me a sign-in link', cancel: 'Cancel', sent: 'Check your email for a sign-in link.', bad: 'Enter a valid email address.', fail: 'Sign-in didn’t work. Try again in a moment.', privacy: 'Privacy policy', del: 'Delete account', delQ: 'Delete your account and all your scores? This can’t be undone.', delDone: 'Your account was deleted.' },
+  fr: { title: 'Se connecter à Citydoku', help: 'Sauvegarde tes scores et tes séries, choisis un nom d’utilisateur, rejoins des ligues et joue sur tous tes appareils.', apple: 'Continuer avec Apple', google: 'Continuer avec Google', facebook: 'Continuer avec Facebook', or: 'ou', email: 'Courriel', send: 'M’envoyer un lien de connexion', cancel: 'Annuler', sent: 'Regarde tes courriels : on t’a envoyé un lien de connexion.', bad: 'Entre une adresse courriel valide.', fail: 'La connexion n’a pas fonctionné. Réessaie dans un moment.', privacy: 'Politique de confidentialité', del: 'Supprimer mon compte', delQ: 'Supprimer ton compte et tous tes scores? C’est irréversible.', delDone: 'Ton compte a été supprimé.' },
+  es: { title: 'Inicia sesión en Citydoku', help: 'Guarda tus puntajes y rachas, elige un nombre de usuario, únete a ligas y juega en cualquier dispositivo.', apple: 'Continuar con Apple', google: 'Continuar con Google', facebook: 'Continuar con Facebook', or: 'o', email: 'Correo electrónico', send: 'Enviarme un enlace de acceso', cancel: 'Cancelar', sent: 'Revisa tu correo: te enviamos un enlace de acceso.', bad: 'Escribe un correo válido.', fail: 'No se pudo iniciar sesión. Inténtalo de nuevo en un momento.', privacy: 'Política de privacidad', del: 'Eliminar cuenta', delQ: '¿Eliminar tu cuenta y todos tus puntajes? No se puede deshacer.', delDone: 'Tu cuenta fue eliminada.' },
 };
 const tx = (k) => (TX[window.CD?.LANG] || TX.en)[k];
 const $ = (id) => document.getElementById(id);
@@ -13,7 +13,7 @@ const REDIRECT_NATIVE = 'app.citydoku.game://auth';
 
 function fill() {
   $('authTitle').textContent = tx('title'); $('authHelp').textContent = tx('help');
-  $('authApple').textContent = ' ' + tx('apple'); $('authGoogle').textContent = tx('google');
+  $('authApple').textContent = ' ' + tx('apple'); $('authGoogle').textContent = tx('google'); $('authFacebook').textContent = tx('facebook');
   $('authOr').textContent = tx('or'); $('authEmailL').textContent = tx('email');
   $('authSend').textContent = tx('send'); $('authCancel').textContent = tx('cancel');
   $('authPrivacy').textContent = tx('privacy'); $('authErr').textContent = '';
@@ -35,10 +35,27 @@ async function oauth(provider) {
   } catch (e) { $('authErr').textContent = tx('fail'); }
 }
 
+// Only show the sign-in buttons for providers turned on in Supabase (Authentication → Providers).
+async function showEnabledProviders() {
+  const ids = { apple: 'authApple', google: 'authGoogle', facebook: 'authFacebook' };
+  Object.values(ids).forEach((id) => { $(id).hidden = true; });
+  $('authOr').parentElement.hidden = true;
+  try {
+    const url = import.meta.env.VITE_SUPABASE_URL.replace(/\/$/, '') + '/auth/v1/settings';
+    const res = await fetch(url, { headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY } });
+    const ext = (await res.json())?.external || {};
+    let any = false;
+    for (const [p, id] of Object.entries(ids)) if (ext[p] === true) { $(id).hidden = false; any = true; }
+    $('authOr').parentElement.hidden = !any;
+  } catch { /* email sign-in still works */ }
+}
+
 export function installAuthUI() {
   if (!sb) return;
+  showEnabledProviders();
   $('authApple').addEventListener('click', () => oauth('apple'));
   $('authGoogle').addEventListener('click', () => oauth('google'));
+  $('authFacebook').addEventListener('click', () => oauth('facebook'));
   $('authCancel').addEventListener('click', () => $('authDlg').close());
   $('authForm').addEventListener('submit', async (e) => {
     e.preventDefault();
