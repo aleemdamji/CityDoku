@@ -310,10 +310,10 @@ const CATS_AIR=[
  U('a_south','hemisphere',AIRK.geo,['Southern Hemisphere','Hémisphère Sud','Hemisferio sur'],1,c=>c.lat<0,airFact),
  U('a_island','island',AIRK.geo,['Located on an island','Situé sur une île','Situado en una isla'],1,c=>c.island===true,airFact),
  U('a_cap','capital',AIRK.status,['Serves a national capital','Dessert une capitale nationale','Sirve a una capital nacional'],1.2,c=>c.cap===true,airFact),
- ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(ch=>U('a_first_'+ch,'code',AIRK.code,['IATA starts with '+ch,'Code IATA commence par '+ch,'Código IATA empieza por '+ch],.5,c=>c.p.startsWith(ch),airFact)),
- ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(ch=>U('a_last_'+ch,'code',AIRK.code,['IATA ends with '+ch,'Code IATA se termine par '+ch,'Código IATA termina en '+ch],.4,c=>c.p.endsWith(ch),airFact)),
- U('a_vowel','code',AIRK.code,['IATA contains a vowel','Code IATA contient une voyelle','Código IATA contiene una vocal'],.8,c=>/[AEIOU]/.test(c.p),airFact),
- U('a_repeat','code',AIRK.code,['IATA has repeated letters','Code IATA avec lettres répétées','Código IATA con letras repetidas'],.7,c=>new Set(c.p).size<3,airFact),
+ ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(ch=>U('a_first_'+ch,'codeFirst',AIRK.code,['IATA starts with '+ch,'Code IATA commence par '+ch,'Código IATA empieza por '+ch],.5,c=>c.p.startsWith(ch),airFact)),
+ ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(ch=>U('a_last_'+ch,'codeLast',AIRK.code,['IATA ends with '+ch,'Code IATA se termine par '+ch,'Código IATA termina en '+ch],.4,c=>c.p.endsWith(ch),airFact)),
+ U('a_vowel','codePattern',AIRK.code,['IATA contains a vowel','Code IATA contient une voyelle','Código IATA contiene una vocal'],.8,c=>/[AEIOU]/.test(c.p),airFact),
+ U('a_repeat','codePattern',AIRK.code,['IATA has repeated letters','Code IATA avec lettres répétées','Código IATA con letras repetidas'],.7,c=>new Set(c.p).size<3,airFact),
  ...[2,3].map(n=>U('a_rw'+n,'runway',AIRK.runway,[n+'+ runways',n+' pistes ou plus',n+' pistas o más'],1,c=>c.runways>=n,airFact)),
  ...[3000,4000].map(n=>U('a_long'+n,'runway',AIRK.runway,['Runway longer than '+n+' m','Piste de plus de '+n+' m','Pista de más de '+n+' m'],1,c=>c.longest>n,airFact)),
  ...[1000,1500].map(n=>U('a_elev'+n,'elev',AIRK.elev,['Above '+n+' m','Plus de '+n+' m','Más de '+n+' m'],.8,c=>c.elev!=null&&c.elev>n,airFact)),
@@ -411,7 +411,7 @@ function render(){
   h+=G.cols.map(plate).join('');
   G.rows.forEach((rid,ri)=>{h+=plate(rid);for(let ci=0;ci<3;ci++){const i=ri*3+ci,v=S.cells[i];
     const rc=T('rowcol',{r:lab(rid),c:lab(G.cols[ci])});
-    if(v!=null){const c=CITIES[v];h+=`<button class="cell ok" data-i="${i}" aria-label="${esc(rc+' '+T('answered',{city:c.n+', '+PV(c.p)}))}"><span class="ck" aria-hidden="true">✓</span><span class="nm${c.n.length>9?' long':''}">${esc(c.n)}</span><span class="pv">${c.p}</span><span class="rr">${rarity(i,v)}%</span></button>`}
+    if(v!=null){const c=CITIES[v];h+=`<button class="cell ok" data-i="${i}" aria-label="${esc(rc+' '+T('answered',{city:c.n+', '+PV(c.p)}))}"><span class="ck" aria-hidden="true">✓</span><span class="nm${(ED==='air'?c.p:c.n).length>9?' long':''}">${esc(ED==='air'?c.p:c.n)}</span><span class="pv">${c.p}</span><span class="rr">${rarity(i,v)}%</span></button>`}
     else h+=`<button class="cell" data-i="${i}" aria-label="${esc(rc+' '+T('empty'))}">${S.done?`<span class="cnt">${T('nAnswers',{n:G.sets[i].length})}</span>`:''}</button>`}});
   b.innerHTML=h;
   b.querySelectorAll('.cell').forEach(el=>el.addEventListener('click',()=>{const i=+el.dataset.i;if(S.done)showAnswers(i);else if(S.cells[i]==null)openPick(i)}));
