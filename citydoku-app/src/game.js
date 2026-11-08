@@ -161,11 +161,11 @@ const yn=(v,en1,en0,fr1,fr0)=>v?L(en1,fr1):L(en0,fr0);
 const col_=(en,fr)=>L(en+': ',fr+' : ');
 // Category definitions: g = group (a group only ever appears on one axis), w = draw weight, k/l = [en, fr]
 const C=(id,g,k,l,w,f,why)=>({id,g,k,l,w,f,why});
+const LEGACY_CA_P1=C('p1','pop',['Population','Population'],['Under 25,000','Moins de 25 000'],1.5,c=>c.pop<25000,c=>'pop. '+fmt(c.pop));
 const CATS_CA=[
  ...['ON','QC','BC','AB','SK','MB','NB','NS','NL','PE'].map(p=>C(p,'prov',['Province','Province'],[PROV.en[p],PROV.fr[p]],['ON','QC','BC','AB'].includes(p)?3:1.2,c=>c.p===p||c.p2===p,inProv)),
  C('ATL','prov',['Region','Région'],['Atlantic Canada','Provinces de l’Atlantique'],1.5,c=>['NB','NS','PE','NL'].includes(c.p),inProv),
  C('PRA','prov',['Region','Région'],['The Prairies','Les Prairies'],1.5,c=>['AB','SK','MB'].includes(c.p)||['AB','SK','MB'].includes(c.p2),inProv),
- C('p1','pop',['Population','Population'],['Under 25,000','Moins de 25 000'],1.5,c=>c.pop<25000,c=>'pop. '+fmt(c.pop)),
  C('p2','pop',['Population','Population'],['25,000 to 75,000','De 25 000 à 75 000'],1.2,c=>c.pop>=25000&&c.pop<75000,c=>'pop. '+fmt(c.pop)),
  C('p3','pop',['Population','Population'],['Over 100,000','Plus de 100 000'],1.5,c=>c.pop>100000,c=>'pop. '+fmt(c.pop)),
  C('p4','pop',['Population','Population'],['Over 250,000','Plus de 250 000'],.8,c=>c.pop>250000,c=>'pop. '+fmt(c.pop)),
@@ -286,7 +286,7 @@ const CATS_GL=[
  U('g_two','name',KK.name,['Name of two or more words','Nom de deux mots ou plus','Nombre de dos o más palabras'],.8,c=>/[ -]/.test(c.n.replace(/\(.*\)/,'').trim()),c=>`“${c.n}”`),
 ];
 let CATS=CATS_CA;
-let CAT=Object.fromEntries(CATS.map(c=>[c.id,c]));
+let CAT=Object.fromEntries([...CATS,LEGACY_CA_P1].map(c=>[c.id,c]));
 const lab=id=>{const a=CAT[id].l;return a[LI()]??a[0]},kick=id=>{const a=CAT[id].k;return a[LI()]??a[0]};
 // ---------- RNG + generator ----------
 function hashStr(s){let h=2166136261;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
@@ -297,11 +297,22 @@ function hasMatching(sets){const match=new Map();
   const tryCell=(ci,seen)=>{for(const x of sets[ci]){if(seen.has(x))continue;seen.add(x);if(!match.has(x)||tryCell(match.get(x),seen)){match.set(x,ci);return true}}return false};
   return sets.every((_,ci)=>tryCell(ci,new Set()))}
 const NESTED=[['p3','p4'],['via','cn']];
-const MIX_FROM='2026-11-08';const dailyLevel=ds=>ds>=MIX_FROM?'mixed':'medium';
+// Preserve published daily grids. From November 9 onward, each new daily has an explicit difficulty.
+const MIX_FROM='2026-11-08';
+const DAILY_LEVELS=['easy','medium','hard'];
+const LEVEL_CYCLE_FROM='2026-11-09';
+const dailyLevel=ds=>{
+  if(ds<LEVEL_CYCLE_FROM)return ds>=MIX_FROM?'mixed':'medium';
+  const days=Math.round((Date.parse(ds+'T12:00:00Z')-Date.parse(LEVEL_CYCLE_FROM+'T12:00:00Z'))/864e5);
+  return DAILY_LEVELS[days%DAILY_LEVELS.length];
+};
+const legacyCaDay=ds=>ED==='ca'&&ds<LEVEL_CYCLE_FROM;
 const DIFF={mixed:{min:1,max:60,mix:true},easy:{min:6,max:60,cats:c=>c.g!=='name'&&!c.rare&&!['pwhl','u2','sl','p4','cn','rt'].includes(c.id)},medium:{min:3,max:40},hard:{min:1,max:30,needSmall:3}};
-const SIGC={};function sigFor(ds){const k=ED+':'+ds;if(!(k in SIGC)){const g=generate((EDC().seed||ED+'-')+ds,dailyLevel(ds));SIGC[k]=g.rows.join(',')+'|'+g.cols.join(',')}return SIGC[k]}
-function generate(seedStr,level){
-  const r=rng(hashStr(seedStr)),d=DIFF[level],pool=CATS.filter(d.cats||(()=>true));
+const SIGC={};function sigFor(ds){const k=ED+':'+ds;if(!(k in SIGC)){const g=generate((EDC().seed||ED+'-')+ds,dailyLevel(ds),legacyCaDay(ds));SIGC[k]=g.rows.join(',')+'|'+g.cols.join(',')}return SIGC[k]}
+function generate(seedStr,level,legacyCa=false){
+  // Restore the retired population clue in its original position for archived Canadoku grids only.
+  const cats=legacyCa&&ED==='ca'?[...CATS.slice(0,12),LEGACY_CA_P1,...CATS.slice(12)]:CATS;
+  const r=rng(hashStr(seedStr)),d=DIFF[level],pool=cats.filter(d.cats||(()=>true));
   for(let tries=0;tries<20000;tries++){
     const rows=[],cols=[],rg=new Set(),cg=new Set();let ok=true;
     for(let k=0;k<6&&ok;k++){
@@ -339,7 +350,7 @@ function load(){
   document.getElementById('fb').innerHTML='';
   if(dated()){
     curDate=mode==='daily'?todayET():(document.getElementById('archDate').value||prevDay(todayET()));
-    key=ED+':daily:'+curDate;G=generate((EDC().seed||ED+'-')+curDate,dailyLevel(curDate));S=store.get(key,null)||freshState();S.log=S.log||[];restoreFromDb();
+    key=ED+':daily:'+curDate;G=generate((EDC().seed||ED+'-')+curDate,dailyLevel(curDate),legacyCaDay(curDate));S=store.get(key,null)||freshState();S.log=S.log||[];restoreFromDb();
   }else{const lvl=document.getElementById('diff').value;curDate=null;key=null;G=generate('free-'+Date.now()+Math.random(),lvl);S=freshState()}
   aggregate();render();
 }
@@ -481,7 +492,7 @@ document.getElementById('archDate').addEventListener('change',load);
 let DB=null,UID=null,meDoc=null,meExists=false,writing=Promise.resolve(),ALL=[],ME=null,dbState='off',lbTab='today';
 let LIVE={players:0,cellN:Array(9).fill(0),counts:Array.from({length:9},()=>({}))};
 const ckey=i=>CITIES[i].n+'|'+CITIES[i].p;let KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]));
-function useData(){if(!EDC().ready)return;CITIES=DATA[ED];CATS=ED==='us'?CATS_US:ED==='global'?CATS_GL:CATS_CA;CAT=Object.fromEntries(CATS.map(c=>[c.id,c]));INDEX=CITIES.map((c,i)=>({i,keys:[c.n,...c.a].map(norm)}));KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]))}
+function useData(){if(!EDC().ready)return;CITIES=DATA[ED];CATS=ED==='us'?CATS_US:ED==='global'?CATS_GL:CATS_CA;CAT=Object.fromEntries([...CATS,...(ED==='ca'?[LEGACY_CA_P1]:[])].map(c=>[c.id,c]));INDEX=CITIES.map((c,i)=>({i,keys:[c.n,...c.a].map(norm)}));KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]))}
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function drawLive(){const el=document.getElementById('live');el.textContent=!dated()||(dbState!=='on'&&dbState!=='readonly')?'':LIVE.players===1?T('player1'):T('players',{n:LIVE.players})}
 function aggregate(){const counts=Array.from({length:9},()=>({})),cellN=Array(9).fill(0);let players=0;
