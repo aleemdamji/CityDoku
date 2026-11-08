@@ -1,0 +1,1412 @@
+{
+  "manifest": {
+    "status": "STAGED_NOT_RELEASE_APPROVED",
+    "asOf": "2026-11-08",
+    "source": {
+      "name": "AirportMiles CC0 airport-codes snapshot",
+      "snapshot": "2026-10-13",
+      "repo": "tine-current/airport-codes",
+      "blobSha": "e0cc560f53dd3f8ec0d475dfdbd867cdc7a9f0d6",
+      "upstream": "OurAirports + Wikidata",
+      "countryBlobSha": "ac19a94991d42f4f71118ffac75b062654bcb488",
+      "earlierSource": "gateway/flight-scout 2026-07-19",
+      "olderCoordinates": "brandonhimpfen/airports"
+    },
+    "baselineCount": 3244,
+    "countsByContinent": {
+      "Oceania": 229,
+      "Africa": 333,
+      "Europe": 598,
+      "Asia": 959,
+      "South America": 276,
+      "North America": 849
+    },
+    "traffic2025Verified": 20,
+    "missingClassifications": {
+      "operation": 3244,
+      "island": 3244,
+      "capital": 3244,
+      "runway": 3244,
+      "fiveContinent": 3244
+    },
+    "issueCounts": {
+      "missingServedCity": 293,
+      "missingICAO": 5,
+      "missingElevation": 37,
+      "missingWikidata": 17,
+      "largeCoordinateDisagreement": 31,
+      "sizeChanged": 7,
+      "newSinceJuly": 14,
+      "oldRemovedFromOct": 39,
+      "missingCountryContinent": 0,
+      "sameCityMultiple": 82
+    },
+    "notes": [
+      "Every row comes from a cross-referenced airport directory, not an independent scheduled-flight audit.",
+      "Missing value means unknown, never false. All records releaseEligible false.",
+      "No route coverage is inferred from 2014 OpenFlights routes.",
+      "Large coordinate disagreements use an older secondary dataset; a disagreement is a review trigger not proof that the newer location is wrong."
+    ]
+  },
+  "issues": {
+    "missingServedCity": [
+      "ACI",
+      "ACK",
+      "AEU",
+      "AGR",
+      "AHA",
+      "AKY",
+      "ANU",
+      "ANV",
+      "ASV",
+      "ATC",
+      "AVK",
+      "AWK",
+      "AXP",
+      "BCD",
+      "BCI",
+      "BDT",
+      "BED",
+      "BEF",
+      "BEK",
+      "BEU",
+      "BFY",
+      "BJB",
+      "BKN",
+      "BLA",
+      "BQL",
+      "BQT",
+      "BRW",
+      "BSG",
+      "BTI",
+      "BUQ",
+      "BUX",
+      "BWO",
+      "BXY",
+      "BYN",
+      "BZX",
+      "CCZ",
+      "CDE",
+      "CLL",
+      "CMA",
+      "CMU",
+      "CNB",
+      "CRI",
+      "CRL",
+      "CSW",
+      "CUC",
+      "CUK",
+      "CYB",
+      "CYC",
+      "CYI",
+      "CZH",
+      "DBR",
+      "DDR",
+      "DEF",
+      "DGT",
+      "DJT",
+      "DOV",
+      "DSY",
+      "DZH",
+      "EBD",
+      "EHU",
+      "ELH",
+      "ESD",
+      "EWB",
+      "FIZ",
+      "FTW",
+      "FYN",
+      "GBB",
+      "GHB",
+      "GJA",
+      "GKA",
+      "GMA",
+      "GNS",
+      "GRK",
+      "HAQ",
+      "HBE",
+      "HBX",
+      "HCR",
+      "HDS",
+      "HGU",
+      "HHR",
+      "HID",
+      "HKN",
+      "HLA",
+      "HOB",
+      "HPA",
+      "HQL",
+      "HSS",
+      "HTG",
+      "HUO",
+      "HVD",
+      "HWR",
+      "HYA",
+      "IGA",
+      "IKG",
+      "IZT",
+      "JNU",
+      "KAB",
+      "KAT",
+      "KCY",
+      "KET",
+      "KKW",
+      "KKX",
+      "KMA",
+      "KND",
+      "KOP",
+      "KTD",
+      "KTI",
+      "KVG",
+      "KWA",
+      "KWM",
+      "KXB",
+      "KYP",
+      "LAE",
+      "LDU",
+      "LER",
+      "LHG",
+      "LHL",
+      "LIW",
+      "LOE",
+      "LSG",
+      "LSH",
+      "LTD",
+      "LUR",
+      "LUV",
+      "LYC",
+      "MAF",
+      "MAG",
+      "MAS",
+      "MBI",
+      "MDU",
+      "MEG",
+      "MEQ",
+      "MHU",
+      "MJI",
+      "MJK",
+      "MKP",
+      "MKR",
+      "MKU",
+      "MMD",
+      "MMG",
+      "MPH",
+      "MPN",
+      "MQS",
+      "MUA",
+      "MYG",
+      "MZQ",
+      "MZS",
+      "NAH",
+      "NAJ",
+      "NAM",
+      "NAW",
+      "NEV",
+      "NMA",
+      "NOS",
+      "NPO",
+      "NTN",
+      "NTX",
+      "NUM",
+      "NYK",
+      "OEC",
+      "OIR",
+      "OKE",
+      "OKL",
+      "OKY",
+      "OMN",
+      "ONX",
+      "OOM",
+      "OPU",
+      "ORH",
+      "OTH",
+      "OYE",
+      "PAB",
+      "PBU",
+      "PDO",
+      "PGH",
+      "PGV",
+      "PIZ",
+      "PMC",
+      "PSU",
+      "PUZ",
+      "PXR",
+      "PYK",
+      "QBC",
+      "RCB",
+      "RER",
+      "REW",
+      "RKT",
+      "RMZ",
+      "RNJ",
+      "ROP",
+      "RRG",
+      "RSD",
+      "RSI",
+      "RST",
+      "SAI",
+      "SBT",
+      "SCC",
+      "SHI",
+      "SIS",
+      "SJT",
+      "SMN",
+      "SNO",
+      "SQG",
+      "SRY",
+      "SSY",
+      "STV",
+      "SZH",
+      "TBI",
+      "TCA",
+      "TEZ",
+      "TIQ",
+      "TJG",
+      "TLE",
+      "TMH",
+      "TPA",
+      "TPE",
+      "TQO",
+      "TRT",
+      "TUA",
+      "TVT",
+      "UBN",
+      "UGA",
+      "UGU",
+      "UKE",
+      "ULO",
+      "UST",
+      "UTO",
+      "VAI",
+      "VAQ",
+      "VAV",
+      "VDO",
+      "VEO",
+      "VHM",
+      "VIG",
+      "VIJ",
+      "VLV",
+      "VMU",
+      "VRL",
+      "WBM",
+      "WGE",
+      "WKA",
+      "WNI",
+      "WSZ",
+      "WUN",
+      "WUU",
+      "WWK",
+      "XKS",
+      "XPL",
+      "XQU",
+      "XSC",
+      "XTG",
+      "YAA",
+      "YAG",
+      "YBL",
+      "YBY",
+      "YCG",
+      "YCM",
+      "YDN",
+      "YFC",
+      "YFS",
+      "YIA",
+      "YIF",
+      "YIV",
+      "YLX",
+      "YNA",
+      "YNL",
+      "YOJ",
+      "YPA",
+      "YPE",
+      "YPW",
+      "YPX",
+      "YPY",
+      "YPZ",
+      "YQA",
+      "YQD",
+      "YQH",
+      "YQQ",
+      "YQU",
+      "YQZ",
+      "YRO",
+      "YSF",
+      "YSM",
+      "YUX",
+      "YVC",
+      "YVQ",
+      "YVV",
+      "YWL",
+      "YXC",
+      "YYD",
+      "YYE",
+      "YZT",
+      "ZMT",
+      "ZSJ"
+    ],
+    "missingICAO": [
+      "KHX",
+      "LSG",
+      "WKK",
+      "XQU",
+      "YAA"
+    ],
+    "missingElevation": [
+      "AOG",
+      "AQG",
+      "BFY",
+      "CDE",
+      "CWJ",
+      "DNH",
+      "ENY",
+      "FYJ",
+      "GYS",
+      "HUO",
+      "HYN",
+      "HZG",
+      "IQM",
+      "IQN",
+      "JMJ",
+      "JNZ",
+      "JSJ",
+      "KQH",
+      "LLV",
+      "LPF",
+      "LYG",
+      "LZO",
+      "MGB",
+      "OEC",
+      "SWA",
+      "SYS",
+      "SZH",
+      "TEN",
+      "TXN",
+      "UCB",
+      "WDS",
+      "WEF",
+      "XIL",
+      "YIN",
+      "YKH",
+      "ZAT",
+      "ZHA"
+    ],
+    "missingWikidata": [
+      "AHA",
+      "BZX",
+      "CSW",
+      "DJT",
+      "HBE",
+      "HWR",
+      "IKG",
+      "KCY",
+      "KXB",
+      "LSG",
+      "MZS",
+      "NPO",
+      "OMN",
+      "TVT",
+      "UKE",
+      "VAQ",
+      "VEO"
+    ],
+    "largeCoordinateDisagreement": [
+      {
+        "iata": "APO",
+        "distanceKm": 102,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "AVR",
+        "distanceKm": 8303,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "BPE",
+        "distanceKm": 3076,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "BSZ",
+        "distanceKm": 7778,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "CCE",
+        "distanceKm": 9462,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "CYZ",
+        "distanceKm": 111,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "ENO",
+        "distanceKm": 863,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "ENU",
+        "distanceKm": 112,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "ETR",
+        "distanceKm": 764,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "GOQ",
+        "distanceKm": 418,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "HJJ",
+        "distanceKm": 75,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "HMB",
+        "distanceKm": 518,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "HSA",
+        "distanceKm": 11521,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "JIC",
+        "distanceKm": 783,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "JIM",
+        "distanceKm": 111,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "JNG",
+        "distanceKm": 53,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "JXA",
+        "distanceKm": 107,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "KJI",
+        "distanceKm": 59,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "KOP",
+        "distanceKm": 623,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "LHW",
+        "distanceKm": 52,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "LLF",
+        "distanceKm": 53,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "MXV",
+        "distanceKm": 258,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "NKT",
+        "distanceKm": 9805,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "OHE",
+        "distanceKm": 65,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "PBU",
+        "distanceKm": 1161,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "PGH",
+        "distanceKm": 97,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "SHO",
+        "distanceKm": 12345,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "TLQ",
+        "distanceKm": 4000,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "TML",
+        "distanceKm": 190,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "TPJ",
+        "distanceKm": 299,
+        "reference": "brandonhimpfen/airports"
+      },
+      {
+        "iata": "ULK",
+        "distanceKm": 3866,
+        "reference": "brandonhimpfen/airports"
+      }
+    ],
+    "sizeChanged": [
+      {
+        "iata": "HUI",
+        "previous": "medium_airport",
+        "new": "large"
+      },
+      {
+        "iata": "MPN",
+        "previous": "large_airport",
+        "new": "medium"
+      },
+      {
+        "iata": "NTE",
+        "previous": "medium_airport",
+        "new": "large"
+      },
+      {
+        "iata": "RZV",
+        "previous": "large_airport",
+        "new": "medium"
+      },
+      {
+        "iata": "SUI",
+        "previous": "medium_airport",
+        "new": "large"
+      },
+      {
+        "iata": "YHM",
+        "previous": "medium_airport",
+        "new": "large"
+      },
+      {
+        "iata": "YQG",
+        "previous": "medium_airport",
+        "new": "large"
+      }
+    ],
+    "newSinceJuly": [
+      "AHU",
+      "AVR",
+      "BGG",
+      "DJT",
+      "DXN",
+      "KFS",
+      "KZR",
+      "LOO",
+      "MZH",
+      "MZW",
+      "RJL",
+      "UAR",
+      "VAS",
+      "ZAT"
+    ],
+    "oldRemovedFromOct": [
+      {
+        "iata": "AAQ",
+        "name": "Anapa Vityazevo Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "ADA",
+        "name": "Adana Şakirpaşa Airport",
+        "country": "TR"
+      },
+      {
+        "iata": "AEH",
+        "name": "Abeche Airport",
+        "country": "TD"
+      },
+      {
+        "iata": "BZK",
+        "name": "Bryansk International Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "CWC",
+        "name": "Chernivtsi International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "DIJ",
+        "name": "Dijon Longvic airport",
+        "country": "FR"
+      },
+      {
+        "iata": "DKR",
+        "name": "Léopold Sédar Senghor International Airport",
+        "country": "SN"
+      },
+      {
+        "iata": "DNK",
+        "name": "Dnipro International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "DNR",
+        "name": "Dinard Pleurtuit Saint-Malo airport",
+        "country": "FR"
+      },
+      {
+        "iata": "EGO",
+        "name": "Belgorod International Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "GAE",
+        "name": "Gabès Matmata International Airport",
+        "country": "TN"
+      },
+      {
+        "iata": "GAF",
+        "name": "Gafsa Ksar International Airport",
+        "country": "TN"
+      },
+      {
+        "iata": "GEC",
+        "name": "Lefkoniko Airport / Geçitkale Air Base",
+        "country": "CY"
+      },
+      {
+        "iata": "GHT",
+        "name": "Ghat Airport",
+        "country": "LY"
+      },
+      {
+        "iata": "IFO",
+        "name": "Ivano-Frankivsk International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "KHE",
+        "name": "Kherson International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "KWG",
+        "name": "Kryvyi Rih International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "LME",
+        "name": "Le Mans-Arnage Airport",
+        "country": "FR"
+      },
+      {
+        "iata": "LPK",
+        "name": "Lipetsk Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "LRT",
+        "name": "Lorient South Brittany (Bretagne Sud) Airport",
+        "country": "FR"
+      },
+      {
+        "iata": "LWO",
+        "name": "Lviv International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "MMZ",
+        "name": "Maymana Zahiraddin Faryabi Airport",
+        "country": "AF"
+      },
+      {
+        "iata": "MPW",
+        "name": "Mariupol International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "NFG",
+        "name": "Nefteyugansk Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "PBI",
+        "name": "President Donald J. Trump International Airport",
+        "country": "US"
+      },
+      {
+        "iata": "ROV",
+        "name": "Platov International Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "RRJ",
+        "name": "Jacarepaguá - Roberto Marinho Airport",
+        "country": "BR"
+      },
+      {
+        "iata": "RWN",
+        "name": "Rivne International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "RYB",
+        "name": "Staroselye Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "SIP",
+        "name": "Simferopol International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "SNR",
+        "name": "Saint-Nazaire-Montoir Airport",
+        "country": "FR"
+      },
+      {
+        "iata": "TGK",
+        "name": "Taganrog Yuzhny Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "THU",
+        "name": "Pituffik Space Base",
+        "country": "GL"
+      },
+      {
+        "iata": "UDJ",
+        "name": "Uzhhorod International Airport",
+        "country": "UA"
+      },
+      {
+        "iata": "URS",
+        "name": "Kursk East Airport",
+        "country": "RU"
+      },
+      {
+        "iata": "YCL",
+        "name": "Charlo Airport",
+        "country": "CA"
+      },
+      {
+        "iata": "YJT",
+        "name": "Stephenville Dymond International Airport",
+        "country": "CA"
+      },
+      {
+        "iata": "YSL",
+        "name": "Saint-Léonard Airport",
+        "country": "CA"
+      },
+      {
+        "iata": "YXK",
+        "name": "Rimouski Airport",
+        "country": "CA"
+      }
+    ],
+    "missingCountryContinent": [],
+    "sameCityMultiple": [
+      {
+        "cityCountry": "albany|US",
+        "iata": [
+          "ABY",
+          "ALB"
+        ]
+      },
+      {
+        "cityCountry": "amman|JO",
+        "iata": [
+          "ADJ",
+          "AMM"
+        ]
+      },
+      {
+        "cityCountry": "buenos aires|AR",
+        "iata": [
+          "AEP",
+          "EZE"
+        ]
+      },
+      {
+        "cityCountry": "augusta|US",
+        "iata": [
+          "AGS",
+          "AUG"
+        ]
+      },
+      {
+        "cityCountry": "anchorage|US",
+        "iata": [
+          "ANC",
+          "MRI"
+        ]
+      },
+      {
+        "cityCountry": "stockholm|SE",
+        "iata": [
+          "ARN",
+          "BMA",
+          "NYO",
+          "VST"
+        ]
+      },
+      {
+        "cityCountry": "watertown|US",
+        "iata": [
+          "ART",
+          "ATY"
+        ]
+      },
+      {
+        "cityCountry": "atlanta|US",
+        "iata": [
+          "ATL",
+          "PDK"
+        ]
+      },
+      {
+        "cityCountry": "melbourne|AU",
+        "iata": [
+          "AVV",
+          "MBW",
+          "MEB",
+          "MEL"
+        ]
+      },
+      {
+        "cityCountry": "bucharest|RO",
+        "iata": [
+          "BBU",
+          "OTP"
+        ]
+      },
+      {
+        "cityCountry": "seattle|US",
+        "iata": [
+          "BFI",
+          "SEA"
+        ]
+      },
+      {
+        "cityCountry": "belfast|GB",
+        "iata": [
+          "BFS",
+          "BHD"
+        ]
+      },
+      {
+        "cityCountry": "denver|US",
+        "iata": [
+          "BJC",
+          "DEN"
+        ]
+      },
+      {
+        "cityCountry": "bangkok|TH",
+        "iata": [
+          "BKK",
+          "DMK"
+        ]
+      },
+      {
+        "cityCountry": "burlington|US",
+        "iata": [
+          "BRL",
+          "BTV"
+        ]
+      },
+      {
+        "cityCountry": "belize city|BZ",
+        "iata": [
+          "BZE",
+          "TZA"
+        ]
+      },
+      {
+        "cityCountry": "balıkesir|TR",
+        "iata": [
+          "BZI",
+          "EDO"
+        ]
+      },
+      {
+        "cityCountry": "columbia|US",
+        "iata": [
+          "CAE",
+          "COU"
+        ]
+      },
+      {
+        "cityCountry": "paris|FR",
+        "iata": [
+          "CDG",
+          "ORY"
+        ]
+      },
+      {
+        "cityCountry": "são paulo|BR",
+        "iata": [
+          "CGH",
+          "GRU"
+        ]
+      },
+      {
+        "cityCountry": "jakarta|ID",
+        "iata": [
+          "CGK",
+          "HLP"
+        ]
+      },
+      {
+        "cityCountry": "charleston|US",
+        "iata": [
+          "CHS",
+          "CRW"
+        ]
+      },
+      {
+        "cityCountry": "rome|IT",
+        "iata": [
+          "CIA",
+          "FCO"
+        ]
+      },
+      {
+        "cityCountry": "carlsbad|US",
+        "iata": [
+          "CLD",
+          "CNM"
+        ]
+      },
+      {
+        "cityCountry": "colombo|LK",
+        "iata": [
+          "CMB",
+          "RML"
+        ]
+      },
+      {
+        "cityCountry": "columbus|US",
+        "iata": [
+          "CMH",
+          "CSG",
+          "GTR",
+          "LCK"
+        ]
+      },
+      {
+        "cityCountry": "copenhagen|DK",
+        "iata": [
+          "CPH",
+          "RKE"
+        ]
+      },
+      {
+        "cityCountry": "sapporo|JP",
+        "iata": [
+          "CTS",
+          "OKD"
+        ]
+      },
+      {
+        "cityCountry": "chengdu|CN",
+        "iata": [
+          "CTU",
+          "TFU"
+        ]
+      },
+      {
+        "cityCountry": "cincinnati|US",
+        "iata": [
+          "CVG",
+          "LUK"
+        ]
+      },
+      {
+        "cityCountry": "washington, d.c.|US",
+        "iata": [
+          "DCA",
+          "IAD"
+        ]
+      },
+      {
+        "cityCountry": "roseau|DM",
+        "iata": [
+          "DCF",
+          "DOM"
+        ]
+      },
+      {
+        "cityCountry": "doha|QA",
+        "iata": [
+          "DIA",
+          "DOH"
+        ]
+      },
+      {
+        "cityCountry": "moscow|RU",
+        "iata": [
+          "DME",
+          "SVO",
+          "VKO",
+          "ZIA"
+        ]
+      },
+      {
+        "cityCountry": "dubai|AE",
+        "iata": [
+          "DWC",
+          "DXB"
+        ]
+      },
+      {
+        "cityCountry": "medellín|CO",
+        "iata": [
+          "EOH",
+          "MDE"
+        ]
+      },
+      {
+        "cityCountry": "windhoek|NA",
+        "iata": [
+          "ERS",
+          "WDH"
+        ]
+      },
+      {
+        "cityCountry": "nouméa|NC",
+        "iata": [
+          "GEA",
+          "NOU"
+        ]
+      },
+      {
+        "cityCountry": "georgetown|GY",
+        "iata": [
+          "GEO",
+          "OGL"
+        ]
+      },
+      {
+        "cityCountry": "rio de janeiro|BR",
+        "iata": [
+          "GIG",
+          "SDU"
+        ]
+      },
+      {
+        "cityCountry": "glasgow|GB",
+        "iata": [
+          "GLA",
+          "PIK"
+        ]
+      },
+      {
+        "cityCountry": "chicago|US",
+        "iata": [
+          "GYY",
+          "MDW",
+          "ORD"
+        ]
+      },
+      {
+        "cityCountry": "tokyo|JP",
+        "iata": [
+          "HND",
+          "NRT"
+        ]
+      },
+      {
+        "cityCountry": "houston|US",
+        "iata": [
+          "HOU",
+          "HVN",
+          "IAH"
+        ]
+      },
+      {
+        "cityCountry": "tehran|IR",
+        "iata": [
+          "IKA",
+          "THR"
+        ]
+      },
+      {
+        "cityCountry": "wilmington|US",
+        "iata": [
+          "ILG",
+          "ILM"
+        ]
+      },
+      {
+        "cityCountry": "istanbul|TR",
+        "iata": [
+          "IST",
+          "SAW"
+        ]
+      },
+      {
+        "cityCountry": "osaka|JP",
+        "iata": [
+          "ITM",
+          "KIX"
+        ]
+      },
+      {
+        "cityCountry": "juiz de fora|BR",
+        "iata": [
+          "IZA",
+          "JDF"
+        ]
+      },
+      {
+        "cityCountry": "jackson|US",
+        "iata": [
+          "JAC",
+          "JAN",
+          "MKL"
+        ]
+      },
+      {
+        "cityCountry": "santo domingo|DO",
+        "iata": [
+          "JBQ",
+          "SDQ"
+        ]
+      },
+      {
+        "cityCountry": "new york city|US",
+        "iata": [
+          "JFK",
+          "LGA"
+        ]
+      },
+      {
+        "cityCountry": "kathmandu|NP",
+        "iata": [
+          "JKR",
+          "KTM"
+        ]
+      },
+      {
+        "cityCountry": "kingston|JM",
+        "iata": [
+          "KIN",
+          "KTP"
+        ]
+      },
+      {
+        "cityCountry": "luanda|AO",
+        "iata": [
+          "LAD",
+          "NBJ"
+        ]
+      },
+      {
+        "cityCountry": "lafayette|US",
+        "iata": [
+          "LAF",
+          "LFT"
+        ]
+      },
+      {
+        "cityCountry": "london|GB",
+        "iata": [
+          "LCY",
+          "LGW",
+          "LHR",
+          "LTN",
+          "SEN",
+          "STN"
+        ]
+      },
+      {
+        "cityCountry": "yichun|CN",
+        "iata": [
+          "LDS",
+          "YIC"
+        ]
+      },
+      {
+        "cityCountry": "long island|BS",
+        "iata": [
+          "LGI",
+          "SML"
+        ]
+      },
+      {
+        "cityCountry": "milan|IT",
+        "iata": [
+          "LIN",
+          "MXP"
+        ]
+      },
+      {
+        "cityCountry": "orlando|US",
+        "iata": [
+          "MCO",
+          "SFB"
+        ]
+      },
+      {
+        "cityCountry": "miami|US",
+        "iata": [
+          "MIA",
+          "OPF"
+        ]
+      },
+      {
+        "cityCountry": "monrovia|LR",
+        "iata": [
+          "MLW",
+          "ROB"
+        ]
+      },
+      {
+        "cityCountry": "nairobi|KE",
+        "iata": [
+          "NBO",
+          "WIL"
+        ]
+      },
+      {
+        "cityCountry": "nagoya|JP",
+        "iata": [
+          "NGO",
+          "NKM"
+        ]
+      },
+      {
+        "cityCountry": "panama city|PA",
+        "iata": [
+          "PAC",
+          "PTY"
+        ]
+      },
+      {
+        "cityCountry": "portland|US",
+        "iata": [
+          "PDX",
+          "PWM"
+        ]
+      },
+      {
+        "cityCountry": "beijing|CN",
+        "iata": [
+          "PEK",
+          "PKX"
+        ]
+      },
+      {
+        "cityCountry": "pokhara|NP",
+        "iata": [
+          "PHH",
+          "PKR"
+        ]
+      },
+      {
+        "cityCountry": "tri-cities|US",
+        "iata": [
+          "PSC",
+          "TRI"
+        ]
+      },
+      {
+        "cityCountry": "shanghai|CN",
+        "iata": [
+          "PVG",
+          "SHA"
+        ]
+      },
+      {
+        "cityCountry": "springfield|US",
+        "iata": [
+          "SGF",
+          "SPI"
+        ]
+      },
+      {
+        "cityCountry": "st. george|US",
+        "iata": [
+          "SGU",
+          "STG"
+        ]
+      },
+      {
+        "cityCountry": "san juan|PR",
+        "iata": [
+          "SIG",
+          "SJU"
+        ]
+      },
+      {
+        "cityCountry": "singapore|SG",
+        "iata": [
+          "SIN",
+          "XSP"
+        ]
+      },
+      {
+        "cityCountry": "san josé|CR",
+        "iata": [
+          "SJO",
+          "SYQ"
+        ]
+      },
+      {
+        "cityCountry": "santa cruz de la sierra|BO",
+        "iata": [
+          "SRZ",
+          "VVI"
+        ]
+      },
+      {
+        "cityCountry": "tenerife|ES",
+        "iata": [
+          "TFN",
+          "TFS"
+        ]
+      },
+      {
+        "cityCountry": "ulyanovsk|RU",
+        "iata": [
+          "ULV",
+          "ULY"
+        ]
+      },
+      {
+        "cityCountry": "warsaw|PL",
+        "iata": [
+          "WAW",
+          "WMI"
+        ]
+      },
+      {
+        "cityCountry": "montreal|CA",
+        "iata": [
+          "YMX",
+          "YUL"
+        ]
+      },
+      {
+        "cityCountry": "toronto|CA",
+        "iata": [
+          "YTZ",
+          "YYZ"
+        ]
+      }
+    ]
+  }
+}
