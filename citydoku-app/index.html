@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co ws://localhost:*; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Citydoku</title>
 <meta name="description" content="Daily city trivia grids for the world, Canada and the USA. Name a city that fits both signs.">
@@ -141,6 +142,7 @@
     <p class="foot" style="margin:0" data-i="uHelp"></p>
     <label for="uname" style="font-weight:700" data-i="uLabel"></label>
     <input id="uname" maxlength="20" autocomplete="nickname" spellcheck="false" placeholder="PrairieDog">
+    <label style="display:flex;gap:8px;align-items:flex-start;font-size:.9rem"><input type="checkbox" id="upub" style="margin-top:3px"><span data-i="uPub"></span></label>
     <p class="err" id="unameErr" role="alert"></p>
     <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button" id="userCancel" data-i="cancel"></button><button class="btn primary" type="submit" id="userSave" data-i="uSave"></button></div>
   </form>
