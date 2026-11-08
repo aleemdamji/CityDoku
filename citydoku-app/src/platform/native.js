@@ -37,6 +37,8 @@ if (isNative) {
     const a = e.target.closest('a[target="_blank"]');
     if (!a) return;
     e.preventDefault();
-    openExternal(a.href);
+    // Local pages (e.g. /privacy.html) open from the website, since the in-app browser can't load capacitor:// URLs.
+    const site = import.meta.env.VITE_SITE_URL || 'https://citydoku.app';
+    openExternal(/^https?:/.test(a.href) ? a.href : site.replace(/\/$/, '') + new URL(a.href).pathname);
   });
 }
