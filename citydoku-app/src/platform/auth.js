@@ -50,7 +50,7 @@ export function installAuthUI() {
   // Buttons rendered by the game's account bar
   document.addEventListener('click', async (e) => {
     if (e.target.closest('#signInBtn')) openSignIn();
-    if (e.target.closest('#signOutBtn')) await sb.auth.signOut();
+    if (e.target.closest('#signOutBtn')) await sb.auth.signOut({ scope: 'local' });
     if (e.target.closest('#deleteAcctBtn')) {
       if (!confirm(tx('delQ'))) return;
       try { await deleteAccount(); window.CD?.toast(tx('delDone')); } catch { window.CD?.toast(tx('fail')); }
