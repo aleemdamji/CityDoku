@@ -171,5 +171,6 @@ html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset
 .acctlinks{display:flex;gap:12px;flex-wrap:wrap}
 .authbtn{min-height:44px;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:8px}
 #authApple{background:#000;color:#fff;border-color:#000}
+#authFacebook{background:#1877F2;color:#fff;border-color:#1877F2}
 .author{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.8rem}.author::before,.author::after{content:"";flex:1;border-top:1px solid var(--line)}
 .dangerlink{color:var(--muted)}
