@@ -11,10 +11,10 @@ create unique index if not exists players_username_lc_key on public.players (use
 create index if not exists players_updated_at_idx on public.players (updated_at desc);
 
 alter table public.players enable row level security;
--- Leaderboards and pick-rate rarity need everyone's games, so rows are public to read,
--- except players who chose a private profile (data.private = true): only they can read their row.
+-- Private by default: a row is readable by others only when the player opted in to
+-- leaderboards (data.public = true). Players can always read their own row.
 create policy "players are readable by everyone" on public.players for select
-  using (auth.uid() = id or data->'private' is distinct from 'true'::jsonb);
+  using (auth.uid() = id or data->'public' = 'true'::jsonb);
 create policy "players insert their own row" on public.players for insert with check (auth.uid() = id);
 create policy "players update their own row" on public.players for update using (auth.uid() = id) with check (auth.uid() = id);
 create policy "players delete their own row" on public.players for delete using (auth.uid() = id);
@@ -34,6 +34,22 @@ alter table public.players drop constraint if exists players_data_size,
   add constraint players_data_size check (pg_column_size(data) < 1048576);
 alter table public.feedback drop constraint if exists feedback_data_size,
   add constraint feedback_data_size check (pg_column_size(data) < 16384);
+
+-- The server sets updated_at, so nobody can pin their row to the top of the leaderboard load.
+create or replace function public.players_touch() returns trigger
+language plpgsql set search_path = public as $$
+begin new.updated_at := now(); return new; end $$;
+drop trigger if exists players_touch on public.players;
+create trigger players_touch before insert or update on public.players
+  for each row execute function public.players_touch();
+
+-- Usernames: 3-20 letters, digits, - or _, and username_lc must match (stops look-alike/impersonation names).
+alter table public.players drop constraint if exists players_username_ok,
+  add constraint players_username_ok check (
+    coalesce(jsonb_typeof(data->'username'), 'null') = 'null' or (
+      jsonb_typeof(data->'username') = 'string'
+      and data->>'username' ~ '^[A-Za-z0-9_-]{3,20}$'
+      and data->>'username_lc' = lower(data->>'username')));
 
 -- Live leaderboard updates
 alter publication supabase_realtime add table public.players;
