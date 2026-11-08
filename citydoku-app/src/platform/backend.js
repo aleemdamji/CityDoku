@@ -52,7 +52,10 @@ const snapshot = () => ({
   metadata: { fromCache: false, hasPendingWrites: false },
   docs: [...rows.entries()].map(([id, d]) => ({ id, exists: true, data: () => d })),
 });
-const emit = () => listeners.forEach((fn) => fn(snapshot()));
+// Batch live updates so a burst of changes re-renders at most twice a second.
+let emitTimer = null;
+const emitNow = () => { emitTimer = null; listeners.forEach((fn) => fn(snapshot())); };
+const emit = () => { if (!emitTimer) emitTimer = setTimeout(emitNow, 500); };
 
 async function loadPlayers(limit) {
   const { data, error } = await sb.from('players').select('id,data').order('updated_at', { ascending: false }).limit(limit);
@@ -63,7 +66,7 @@ async function loadPlayers(limit) {
 
 function subscribePlayers(limit, next, onErr) {
   listeners.add(next);
-  loadPlayers(limit).then(emit).catch((e) => onErr && onErr(e));
+  loadPlayers(limit).then(emitNow).catch((e) => onErr && onErr(e));
   if (!channel) {
     channel = sb.channel('players-live')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, (p) => {
@@ -143,5 +146,6 @@ export function installShim() {
 export async function deleteAccount() {
   const { error } = await sb.rpc('delete_my_account');
   if (error) throw error;
-  await sb.auth.signOut();
+  try { localStorage.clear(); } catch {}
+  await sb.auth.signOut({ scope: 'local' });
 }
