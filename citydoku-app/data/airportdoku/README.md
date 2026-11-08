@@ -18,6 +18,39 @@ airport dataset is complete.** No new data is represented as verified yet.
   are separate answers.
 * Existing Citydoku editions must retain their rules and saved scores.
 
+## Current candidate snapshot (not production-ready)
+
+`airports_candidates.json` contains **3,269 large/medium scheduled-IATA candidates**
+from a public-domain OurAirports-derived 2026-07-19 source snapshot
+(`gateway/flight-scout`, commit blob SHA recorded in `candidate_validation.json`),
+enriched with country-to-continent mapping from OurAirports and coordinates
+matched by IATA code from a separate public airport-coordinate dataset.
+
+**Initial integrity checks:** 3,269 distinct IATA codes, 0 duplicates, 3,017
+coordinate matches, 252 unmatched coordinates, and no missing mapped continents.
+The files are deliberately separate from the *playable* `src/data/airports.json`,
+which remains empty, with release approval disabled.
+
+Important limitations:
+* A source scheduled-service flag is not proof of active November 2026
+  passenger operations. All 3,269 records require eligibility review.
+* Coordinate matches by IATA are provisional until checked against primary
+  airport locations; 252 records have no coordinate match.
+* No 2025 passenger counts, runway classifications, island/capital flags,
+  or five-continent scheduled-route audits have yet been verified.
+* `airports_candidates.json` does not replace primary OurAirports raw CSV
+  files required by `build.py`. Its records are research/staging data only.
+* An airport's size category from this snapshot is provisional; the
+  1,152 large-airport candidates should be audited against current definitions.
+
+From `citydoku-app/`, run the offline candidate integrity checker:
+
+```sh
+node scripts/airportdoku/validate-candidates.mjs
+```
+
+This checks staging integrity; **it cannot certify the airports for gameplay**.
+
 ## Prepare data
 
 Download and pin a dated [OurAirports](https://ourairports.com/data/) snapshot into
