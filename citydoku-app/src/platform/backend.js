@@ -71,7 +71,8 @@ function subscribePlayers(limit, next, onErr) {
     channel = sb.channel('players-live')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, (p) => {
         if (p.eventType === 'DELETE') rows.delete(p.old.id);
-        else rows.set(p.new.id, p.new.data || {});
+        else if (p.new && p.new.data && typeof p.new.data === 'object') rows.set(p.new.id, p.new.data);
+        else return;
         emit();
       })
       .subscribe();
@@ -87,17 +88,13 @@ function playerDoc(id) {
       if (error) throw mapErr(error);
       return { id, exists: !!data, data: () => data?.data };
     },
-    async set(v) {
-      const { error } = await sb.from('players').upsert({ id, data: v, updated_at: new Date().toISOString() });
-      if (error) throw mapErr(error);
-      rows.set(id, v); emit();
-    },
+    async set(v) { return this.update(v); },
+    // Merge on the server (merge_my_data), so two devices saving at once never erase each other's days.
     async update(v) {
-      const cur = rows.get(id) ?? (await this.get()).data() ?? {};
-      const merged = deepMerge(structuredClone(cur), v);
-      const { error } = await sb.from('players').upsert({ id, data: merged, updated_at: new Date().toISOString() });
+      const { data, error } = await sb.rpc('merge_my_data', { patch: v });
       if (error) throw mapErr(error);
-      rows.set(id, merged); emit();
+      if (data && typeof data === 'object') rows.set(id, data);
+      emitNow();
     },
   };
 }
@@ -108,6 +105,13 @@ const db = {
     if (path === 'plays') return { limit: (n) => ({ onSnapshot: (next, err) => subscribePlayers(n, next, err) }) };
     if (path.startsWith('feedback/')) {
       return { async add(v) { const { error } = await sb.from('feedback').insert({ data: v }); if (error) throw mapErr(error); return {}; } };
+    }
+    if (path === 'leagues') {
+      return {
+        // Register a new league code; names can't be changed afterwards.
+        async create(code, name) { const { error } = await sb.from('leagues').insert({ code, name }); if (error) throw mapErr(error); return true; },
+        async name(code) { const { data, error } = await sb.rpc('league_name', { p_code: code }); if (error) throw mapErr(error); return data || null; },
+      };
     }
     throw new TypeError('unknown collection ' + path);
   },
