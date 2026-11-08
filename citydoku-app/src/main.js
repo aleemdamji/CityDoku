@@ -1,5 +1,6 @@
 import './style.css';
 import './platform/native.js';
+import './platform/kofi.js';
 import { initAuth, installShim } from './platform/backend.js';
 import { installAuthUI } from './platform/auth.js';
 
