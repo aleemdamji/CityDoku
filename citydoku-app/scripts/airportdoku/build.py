@@ -47,13 +47,15 @@ def build(args):
     ids = {r['id'] for r in candidate}
     seen_codes = Counter(r['iata_code'] for r in candidate)
     dest_cont = {}
+    id_by_iata = {r['iata_code']: r['id'] for r in base if r.get('iata_code')}
     for r in base:
         country = countries.get(r['iso_country'],{})
         dest_cont[r['id']] = CONTINENTS.get(country.get('continent'))
     route_continents = defaultdict(set)
     route_sources = defaultdict(set)
     for r in routes:
-        origin, dest = r.get('origin_ourairports_id'), r.get('destination_ourairports_id')
+        origin = r.get('origin_ourairports_id') or id_by_iata.get(r.get('origin_iata'))
+        dest = r.get('destination_ourairports_id') or id_by_iata.get(r.get('destination_iata'))
         if origin not in ids or not dest_cont.get(dest):
             continue
         if r.get('service_type') != 'scheduled_passenger' or nullable_bool(r.get('operated_during_window')) is not True:
