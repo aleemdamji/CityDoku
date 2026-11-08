@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Citydoku</title>
+<meta name="description" content="Daily city trivia grids for the world, Canada and the USA. Name a city that fits both signs.">
+<meta name="theme-color" content="#1D5FA8">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta property="og:title" content="Citydoku">
+<meta property="og:description" content="Daily city trivia grids. Name a city that fits both signs.">
+<meta property="og:image" content="/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800;900&family=Overpass+Mono:wght@400;600&display=swap">
+</head>
+<body>
+
+
+<div class="wrap">
+  <nav class="edpick" aria-labelledby="edLbl">
+    <p class="eyebrow" id="edLbl">Citydoku · <span data-i="pickCountry"></span></p>
+    <div class="edrow" id="edRow"></div>
+  </nav>
+  <div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
+  <header>
+    <div class="toprow">
+      <div class="brand"><h1 id="brandH1"></h1><p class="sub" id="subLine"></p></div>
+      <div class="tabs sm" role="group" aria-label="Language / Langue / Idioma" id="langTabs"></div>
+    </div>
+    <div class="navrow" id="navRow">
+      <div class="tabs" role="group" id="modeTabs"><button id="tabDaily" data-i="tabDaily"></button><button id="tabArchive" data-i="tabArchive"></button><button id="tabFree" data-i="tabFree"></button></div>
+    </div>
+  </header>
+  <div id="gameArea" style="display:contents">
+  <details class="howto" id="howto">
+    <summary><span data-i="howTitle"></span></summary>
+    <ol><li data-i="how1"></li><li data-i="how2"></li><li data-i="how3"></li><li data-i="how4"></li><li data-i="how5"></li></ol>
+  </details>
+  <div class="acct" id="acct" role="status"></div>
+  <div class="bar">
+    <span class="meta"><span id="meta"></span> <span id="live"></span></span>
+    <span class="controls" id="freeControls" hidden>
+      <label for="diff" class="meta" data-i="level"></label>
+      <select id="diff"><option value="easy" data-i="easy"></option><option value="medium" selected data-i="medium"></option><option value="hard" data-i="hard"></option></select>
+      <button class="btn primary" id="newGrid" data-i="newGrid"></button>
+    </span>
+    <span class="controls" id="archControls" hidden>
+      <label for="archDate" class="meta" data-i="pickDate"></label>
+      <select id="archDate"></select>
+    </span>
+  </div>
+  <p class="foot" id="archNote" data-i="archNote" hidden style="margin:0"></p>
+  <div class="board" id="board" role="group"></div>
+  <div id="fb" aria-live="polite"></div>
+  <section class="panel" id="mapPanel" hidden>
+    <h2 data-i="mapTitle"></h2>
+    <svg class="map" viewBox="0 30 720 270" role="img" id="mapSvg"><rect x="0" y="30" width="720" height="270" class="sea"/><path class="land" d=""/><g id="mapDots"></g></svg>
+    <p class="foot" style="margin:0" data-i="mapHelp"></p>
+  </section>
+  <section class="panel" id="endPanel" hidden>
+    <div class="sharehead"><h2 id="endTitle"></h2><span class="leaves" id="leaves" aria-hidden="true"></span></div>
+    <div class="score">
+      <div><b id="sCorrect">0/9</b><span data-i="correct"></span></div>
+      <div><b id="sRarity">0</b><span data-i="rarityScore"></span></div>
+      <div><b id="sStreak">0</b><span data-i="streak"></span></div>
+    </div>
+    <p class="freeze" id="freezeNote" style="margin:0"></p>
+    <p class="foot" style="margin:0" data-i="endHelp"></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" id="shareBtn" data-i="copy"></button>
+      <button class="btn" id="imgBtn" data-i="img"></button>
+    </div>
+    <div class="social"><span class="foot" data-i="shareOn"></span><div class="socrow" id="socRow"></div></div>
+  </section>
+  <section class="panel" id="livePanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="score"><div><b id="lCorrect">0/9</b><span data-i="correct"></span></div><div><b id="lRarity">–</b><span data-i="raritySoFar"></span></div></div>
+      <button class="btn" id="giveUp2" data-i="giveUp"></button>
+    </div>
+  </section>
+  <section class="panel" id="lbPanel">
+    <div class="lbhead"><h2 data-i="lbTitle"></h2>
+      <div class="tabs sm" role="group" id="lbTabs"><button id="lbToday" aria-pressed="true" data-i="today"></button><button id="lbAll" aria-pressed="false" data-i="allTime"></button></div></div>
+    <div class="lgrow"><label for="lgSel" class="foot" data-i="lgShow"></label><select id="lgSel"></select><span id="lgActs" class="lgacts"></span></div>
+    <div class="lbwrap" id="lbBody"></div>
+    <div class="lgfoot"><p class="foot" style="margin:0" data-i="lgHelp"></p><div class="lgbtns"><button class="btn" id="lgCreateOpen" data-i="lgCreate"></button><button class="btn" id="lgJoinOpen" data-i="lgJoin"></button></div></div>
+  </section>
+  <section class="panel" id="remPanel">
+    <h2 data-i="remTitle"></h2>
+    <p style="margin:0;font-weight:700" id="remNext"></p>
+    <p style="margin:0" class="streakwarn" id="remStreak" hidden></p>
+    <div class="remrow"><label for="remTime" class="foot" data-i="remCalL"></label><input type="time" id="remTime" value="09:00"><button class="btn primary" id="remCal" data-i="remCal"></button></div>
+    <p class="foot" style="margin:0" data-i="remHelp"></p>
+  </section>
+  <section class="panel plus" id="plusPanel">
+    <h2><span class="brandName">Canadoku</span><span class="p">+</span><span class="soon" data-i="soon"></span></h2>
+    <p style="margin:0;font-size:.9rem" data-i="plusText"></p>
+    <ul><li data-i="plus1"></li><li data-i="plus2"></li><li data-i="plus3"></li><li data-i="plus4"></li></ul>
+    <div><button class="btn primary" id="notifyBtn" data-i="notify"></button></div>
+  </section>
+  <p class="foot" data-i="foot"></p>
+  </div>
+  <section class="panel soonp" id="soon" hidden>
+    <span class="pill" data-i="inDev"></span>
+    <h2 id="soonTitle"></h2>
+    <p id="soonLead"></p>
+    <div><p class="preview-cap" data-i="previewCap"></p></div>
+    <div class="board preview" id="soonBoard" aria-hidden="true"></div>
+    <h3 data-i="soonCitiesH"></h3><p id="soonCities"></p>
+    <h3 data-i="soonCatsH"></h3><ul id="soonCats"></ul>
+    <h3 data-i="soonDataH"></h3><p id="soonData"></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="suggestBtn" data-i="suggest"></button><button class="btn" id="playCa" data-i="playCa"></button></div>
+  </section>
+  <div style="display:flex;justify-content:center"><button class="btn" id="fbOpen" data-i="fbBtn"></button></div>
+  <p class="built"><span data-i="built"></span> <span role="img" aria-label="Canada">🇨🇦</span></p>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <form method="dialog" class="dlg">
+    <div class="crit" id="dlgCrit"></div>
+    <label id="dlgTitle" for="q" style="font-weight:700" data-i="pickLabel"></label>
+    <input id="q" autocomplete="off" spellcheck="false" role="combobox" aria-controls="results" aria-expanded="true" aria-autocomplete="list">
+    <ul class="results" id="results" role="listbox"></ul>
+    <div style="display:flex;justify-content:flex-end"><button class="btn" value="cancel" data-i="close"></button></div>
+  </form>
+</dialog>
+<dialog id="ansDlg" aria-labelledby="ansTitle">
+  <form method="dialog" class="dlg">
+    <div class="crit" id="ansCrit"></div>
+    <strong id="ansTitle"></strong>
+    <ul class="answers" id="ansList"></ul>
+    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><button class="linkbtn" type="button" id="ansReport" data-i="fbReport"></button><button class="btn" value="cancel" data-i="close"></button></div>
+  </form>
+</dialog>
+<dialog id="userDlg" aria-labelledby="userTitle">
+  <form class="dlg" id="userForm">
+    <strong id="userTitle" style="font-size:1.05rem" data-i="uTitle"></strong>
+    <p class="foot" style="margin:0" data-i="uHelp"></p>
+    <label for="uname" style="font-weight:700" data-i="uLabel"></label>
+    <input id="uname" maxlength="20" autocomplete="nickname" spellcheck="false" placeholder="PrairieDog">
+    <p class="err" id="unameErr" role="alert"></p>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button" id="userCancel" data-i="cancel"></button><button class="btn primary" type="submit" id="userSave" data-i="uSave"></button></div>
+  </form>
+</dialog>
+<dialog id="fbDlg" aria-labelledby="fbTitle">
+  <form class="dlg" id="fbForm">
+    <strong id="fbTitle" style="font-size:1.05rem" data-i="fbTitle"></strong>
+    <p class="foot" style="margin:0" data-i="fbHelp"></p>
+    <label for="fbType" style="font-weight:700" data-i="fbTypeL"></label>
+    <select id="fbType"><option value="correction" data-i="fbT1"></option><option value="missing" data-i="fbT2"></option><option value="translation" data-i="fbT3"></option><option value="bug" data-i="fbT4"></option><option value="idea" data-i="fbT5"></option><option value="other" data-i="fbT6"></option></select>
+    <label for="fbCity" style="font-weight:700" data-i="fbCityL"></label>
+    <input id="fbCity" maxlength="80" autocomplete="off">
+    <label for="fbMsg" style="font-weight:700" data-i="fbMsgL"></label>
+    <textarea id="fbMsg" rows="4" maxlength="1500" style="font:inherit;padding:10px 12px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;resize:vertical"></textarea>
+    <p class="foot" id="fbCtx" style="margin:0"></p>
+    <p class="err" id="fbErr" role="alert"></p>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button" id="fbCancel" data-i="cancel"></button><button class="btn primary" type="submit" id="fbSend" data-i="fbSend"></button></div>
+  </form>
+</dialog>
+<dialog id="lgDlg" aria-labelledby="lgTitle">
+  <form class="dlg" id="lgForm">
+    <strong id="lgTitle" style="font-size:1.05rem"></strong>
+    <label for="lgInput" style="font-weight:700" id="lgInputL"></label>
+    <input id="lgInput" maxlength="30" autocomplete="off" spellcheck="false">
+    <p class="err" id="lgErr" role="alert"></p>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button" id="lgCancel" data-i="cancel"></button><button class="btn primary" type="submit" id="lgSubmit"></button></div>
+  </form>
+</dialog>
+<dialog id="imgDlg" aria-labelledby="imgTitle">
+  <form method="dialog" class="dlg">
+    <strong id="imgTitle" data-i="imgTitle"></strong>
+    <img id="imgPrev" class="imgprev" alt="">
+    <p class="foot" style="margin:0" id="imgHelp"></p>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" value="cancel" data-i="close"></button><a class="btn" id="igOpen" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" style="text-decoration:none" hidden>Instagram ↗</a><button class="btn primary" type="button" id="imgSave" data-i="imgSave"></button></div>
+  </form>
+</dialog>
+
+
+<dialog id="authDlg" aria-labelledby="authTitle">
+  <form class="dlg" id="authForm">
+    <strong id="authTitle" style="font-size:1.05rem"></strong>
+    <p class="foot" style="margin:0" id="authHelp"></p>
+    <button class="btn authbtn" type="button" id="authApple"></button>
+    <button class="btn authbtn" type="button" id="authGoogle"></button>
+    <div class="author"><span id="authOr"></span></div>
+    <label for="authEmail" style="font-weight:700" id="authEmailL"></label>
+    <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com">
+    <p class="err" id="authErr" role="alert"></p>
+    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><button class="btn" type="button" id="authCancel"></button><button class="btn primary" type="submit" id="authSend"></button></div>
+    <p class="foot" style="margin:0"><a href="/privacy.html" target="_blank" rel="noopener" id="authPrivacy"></a></p>
+  </form>
+</dialog>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
