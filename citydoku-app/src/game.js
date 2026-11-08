@@ -2,13 +2,14 @@ import CA from './data/ca.json';
 import US from './data/us.json';
 import GL from './data/global.json';
 import AIR from './data/airports.json';
+import AIR_RELEASE from './data/airports-release.json';
 import LAND from './data/land.txt?raw';
 
 const DATA={ca:CA,us:US,global:GL,air:AIR};const GLC=Object.fromEntries(DATA.global.map(c=>[c.p,c.cn]));let CITIES=DATA.ca;
 
 // ---------- editions ----------
 const EDITIONS={
- air:{flag:'✈️',name:{en:'Airports',fr:'Aéroports',es:'Aeropuertos'},brand:['Airport','doku'],ready:AIR.length>=100&&AIR.every(a=>Number.isFinite(a.pop)&&typeof a.cont5==='boolean'&&typeof a.island==='boolean'&&typeof a.cap==='boolean'),langs:['en','fr','es'],hash:'airports',img:'#18789C',seed:'airportdoku-',launch:'2026-11-08',leaf:'✈️',
+ air:{flag:'✈️',name:{en:'Airports',fr:'Aéroports',es:'Aeropuertos'},brand:['Airport','doku'],ready:AIR_RELEASE.approved===true&&AIR.length>=100&&AIR.every(a=>Number.isFinite(a.pop)&&typeof a.cont5==='boolean'&&typeof a.island==='boolean'&&typeof a.cap==='boolean'),langs:['en','fr','es'],hash:'airports',img:'#18789C',seed:'airportdoku-',launch:'2026-11-08',leaf:'✈️',
   title:'Airportdoku',lead:'A 3×3 airport trivia challenge. Name an airport that fits both clues using its IATA code or airport name.',
   cities:'Major and medium-sized airports with scheduled commercial passenger service. Temporarily suspended airports are excluded. Airports are separate answers, even if they serve the same city.',
   cats:['Country, continent and hemisphere','On an island; serves a national capital','IATA code patterns','Elevation and number or length of runways','2025 annual passengers: 5M+, 10M+, 25M+, 50M+','Non-stop scheduled passenger service to 5+ continents'],
