@@ -1,4 +1,4 @@
--- Citydoku database. Run once in Supabase → SQL Editor.
+-- Citydoku database. Run once in Supabase → SQL Editor, then run the files in supabase/migrations/ in date order.
 
 -- One row per player: username, leagues and every daily game ("days"), keyed "<edition>:<date>".
 create table if not exists public.players (
