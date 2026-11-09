@@ -28,8 +28,8 @@ const S18 = {
 };
 const t = (k, ...a) => { const d = S18[Q()?.LANG] || S18.en; const v = d[k] ?? S18.en[k] ?? k; return typeof v === 'function' ? v(...a) : v; };
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const EDS = ['global', 'ca', 'us'];
-const DAY = /^(global|ca|us):daily:(\d{4}-\d{2}-\d{2})$/;
+const EDS = ['global', 'ca', 'us', 'ap'];
+const DAY = /^(global|ca|us|ap):daily:(\d{4}-\d{2}-\d{2})$/;
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignore */ } };
 

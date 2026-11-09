@@ -1,9 +1,10 @@
 import CA from './data/ca.json';
 import US from './data/us.json';
 import GL from './data/global.json';
+import AP from './data/airports.json';
 import LAND from './data/land.txt?raw';
 
-const DATA={ca:CA,us:US,global:GL};const GLC=Object.fromEntries(DATA.global.map(c=>[c.p,c.cn]));let CITIES=DATA.ca;
+const DATA={ca:CA,us:US,global:GL,ap:AP};const GLC=Object.fromEntries(DATA.global.map(c=>[c.p,c.cn]));let CITIES=DATA.ca;
 
 // ---------- editions ----------
 const EDITIONS={
@@ -13,6 +14,7 @@ const EDITIONS={
   cats:['Continent or country','National capital','Population: over 1 million, 5 million or 10 million','On the ocean coast','Hosted the Summer or Winter Olympics','Hosted FIFA World Cup matches','Has a metro or subway','Home to a UNESCO World Heritage Site','Northern or Southern Hemisphere','Above 1,000 m elevation','Below sea level','Name starts with San, Santa, São or Saint'],
   data:'UN World Urbanization Prospects, national censuses, Wikidata and GeoNames.',
   sample:[['Continent','Europe'],['Population','Over 5 million'],['Sport','Olympic host'],['Geography','On the ocean'],['Transit','Has a metro'],['Status','National capital']]},
+ ap:{flag:'✈️',name:{en:'Airports',fr:'Aéroports',es:'Aeropuertos'},brand:['Airport','doku'],ready:true,langs:['en','fr','es'],hash:'airports',img:'#0E6BA8',seed:'airportdoku-',launch:'2026-11-08',leaf:'✈️'},
  ca:{flag:'🇨🇦',name:{en:'Canada',fr:'Canada'},brand:['Cana','doku'],ready:true,langs:['en','fr'],hash:'canada',img:'#D52B1E',seed:'canadoku-',launch:'2026-10-01',leaf:'🍁'},
  us:{flag:'🇺🇸',name:{en:'United States',fr:'États-Unis'},short:{en:'USA',fr:'É.-U.'},brand:['City','doku'],ready:true,langs:['en','fr','es'],hash:'usa',img:'#0A3161',seed:'citydoku-us-',launch:'2026-11-01',leaf:'🇺🇸',
   title:'Citydoku USA',lead:'From Anchorage to Miami. Name a US city that matches a state, a team, a college or an interstate.',
@@ -45,12 +47,13 @@ const EDITIONS={
   data:'National Bureau of Statistics (7th National Census, 2020), city statistical yearbooks, China Railway.',
   sample:[['Province','Guangdong'],['Geography','On the Yangtze'],['Transit','Has a metro'],['History','Former capital'],['Population','Over 10 million'],['Status','Provincial capital']]},
 };
+const ED_BETA=['ap']; // reachable only by link (#airports) until the airport data is audited
 const ED_ORDER=['global','ca','us']; // hidden for now: 'au','uk','in','cn' (configs kept below)
 let ED='global';
 const EDC=()=>EDITIONS[ED];
 const edName=e=>(EDITIONS[e].name[LANG]||EDITIONS[e].name.en);
 const edShort=e=>(EDITIONS[e].short?.[LANG]||EDITIONS[e].short?.en||edName(e));
-const brandName=()=>ED==='ca'?'Canadoku':'Citydoku – '+edName(ED);
+const brandName=()=>ED==='ca'?'Canadoku':ED==='ap'?'Airportdoku':'Citydoku – '+edName(ED);
 const dk=ds=>ED+':'+ds;
 function edDays(days){const p=ED+':';return Object.fromEntries(Object.entries(days||{}).filter(([k])=>k.startsWith(p)).map(([k,v])=>[k.slice(p.length),v]))}
 // ---------- language ----------
@@ -152,7 +155,7 @@ const fmt=n=>n.toLocaleString(LANG==='fr'?'fr-CA':LANG==='es'?'es-MX':'en-CA');
 const PROV={en:{ON:'Ontario',QC:'Quebec',BC:'British Columbia',AB:'Alberta',SK:'Saskatchewan',MB:'Manitoba',NB:'New Brunswick',NS:'Nova Scotia',PE:'Prince Edward Island',NL:'Newfoundland and Labrador',YT:'Yukon',NT:'Northwest Territories',NU:'Nunavut'},
  fr:{ON:'Ontario',QC:'Québec',BC:'Colombie-Britannique',AB:'Alberta',SK:'Saskatchewan',MB:'Manitoba',NB:'Nouveau-Brunswick',NS:'Nouvelle-Écosse',PE:'Île-du-Prince-Édouard',NL:'Terre-Neuve-et-Labrador',YT:'Yukon',NT:'Territoires du Nord-Ouest',NU:'Nunavut'}};
 const USST={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
-const PV=p=>ED==='us'?stName(p):ED==='global'?(ctryName({p,cn:GLC[p]})):PROV[LANG]?.[p]??PROV.en[p];
+const PV=p=>ED==='ap'?apCountry(p):ED==='us'?stName(p):ED==='global'?(ctryName({p,cn:GLC[p]})):PROV[LANG]?.[p]??PROV.en[p];
 const inProv=c=>L('in ','au ')+PV(c.p)+(c.p2?L(' and ',' et ')+PV(c.p2):'');
 const lg=(c,l)=>c.t.filter(t=>t[1]===l);
 const teamFact=(c,ls)=>{const t=c.t.filter(x=>ls.includes(x[1]));return t.length?t.map(x=>x[0]).join(', '):L('none','aucune')};
@@ -285,6 +288,33 @@ const CATS_GL=[
  U('g_abad','name',KK.name,['Ends in -abad or -pur','Se termine par -abad ou -pur','Termina en -abad o -pur'],.4,c=>/(abad|pur)$/i.test(c.n),c=>`“${c.n}”`,1),
  U('g_two','name',KK.name,['Name of two or more words','Nom de deux mots ou plus','Nombre de dos o más palabras'],.8,c=>/[ -]/.test(c.n.replace(/\(.*\)/,'').trim()),c=>`“${c.n}”`),
 ];
+// ---------- Airport categories (Airportdoku beta) ----------
+const apCountry=p=>{try{AP_DN=AP_DN&&AP_DN.l===LANG?AP_DN:{l:LANG,d:new Intl.DisplayNames([LANG],{type:'region'})};return AP_DN.d.of(p)||p}catch(e){return p}};let AP_DN=null;
+const apIn=c=>W('in ','en ','en ')+apCountry(c.p)+' ('+CONTN[c.cont][LI()]+')';
+const AP_CTRY=[['US',['United States','États-Unis','Estados Unidos']],['CN',['China','Chine','China']],['IN',['India','Inde','India']],['BR',['Brazil','Brésil','Brasil']],['ES',['Spain','Espagne','España']],['FR',['France','France','Francia']],['RU',['Russia','Russie','Rusia']],['DE',['Germany','Allemagne','Alemania']],['IT',['Italy','Italie','Italia']],['JP',['Japan','Japon','Japón']],['TR',['Türkiye','Turquie','Turquía']],['MX',['Mexico','Mexique','México']]];
+const KA={code:['IATA code','Code IATA','Código IATA'],alt:['Altitude','Altitude','Altitud'],runway:['Runways','Pistes','Pistas'],clim:['Latitude','Latitude','Latitud'],net:['Network','Réseau','Red']};
+const apM=m=>fmt(m)+' m';
+const apPax=c=>fmt(c.pop)+W(' passengers (',' passagers (',' pasajeros (')+c.py+')';
+const CATS_AP=[
+ ...Object.keys(CONTN).map(k=>U('a_'+k.replace(' ',''),'prov',KK.cont,CONTN[k],k==='Asia'?2:k==='Oceania'?.5:1.6,c=>c.cont===k,apIn)),
+ ...AP_CTRY.map(([cc,nm])=>U('a_'+cc,'prov',KK.ctry,nm,cc==='US'||cc==='CN'?1.2:.5,c=>c.p===cc,apIn)),
+ ...CATS_GL.filter(c=>['g_N','g_S','g_E','g_W'].includes(c.id)).map(c=>({...c,id:'a'+c.id.slice(1)})),
+ U('a_hi','alt',KA.alt,['Above 1,000 m elevation','Plus de 1 000 m d’altitude','A más de 1000 m de altitud'],1,c=>c.elev>=1000,c=>c.iata+': '+apM(c.elev)),
+ U('a_sea','alt',KA.alt,['At or near sea level (10 m or lower)','Au niveau de la mer (10 m ou moins)','A nivel del mar (10 m o menos)'],1.2,c=>c.elev<=10,c=>c.iata+': '+apM(c.elev)),
+ U('a_trop','lat',KA.clim,['Within the tropics','Dans la zone tropicale','En la zona tropical'],1.2,c=>Math.abs(c.lat)<23.44,c=>c.iata+': '+Math.abs(c.lat).toFixed(1)+'°'+(c.lat>=0?'N':'S')),
+ U('a_l4','len',KA.runway,['Longest runway 4,000 m or more','Piste la plus longue : 4 000 m ou plus','Pista más larga: 4000 m o más'],1,c=>c.lg>=4000,c=>c.iata+': '+apM(c.lg)),
+ U('a_lshort','len',KA.runway,['Longest runway under 3,200 m','Piste la plus longue : moins de 3 200 m','Pista más larga: menos de 3200 m'],1.2,c=>c.lg<3200,c=>c.iata+': '+apM(c.lg)),
+ U('a_r1','num',KA.runway,['Only one runway','Une seule piste','Una sola pista'],1.2,c=>c.rw===1,c=>c.iata+': '+c.rw+W(c.rw===1?' runway':' runways',c.rw===1?' piste':' pistes',c.rw===1?' pista':' pistas')),
+ U('a_r3','num',KA.runway,['Three or more runways','Trois pistes ou plus','Tres pistas o más'],1,c=>c.rw>=3,c=>c.iata+': '+c.rw+W(' runways',' pistes',' pistas')),
+ U('a_p0','pop',KK.pop,['Under 10 million passengers a year','Moins de 10 millions de passagers par an','Menos de 10 millones de pasajeros al año'],1,c=>c.pop<10000000,apPax),
+ U('a_p1','pop',KK.pop,['10 to 25 million passengers a year','De 10 à 25 millions de passagers par an','De 10 a 25 millones de pasajeros al año'],1.2,c=>c.pop>=10000000&&c.pop<25000000,apPax),
+ U('a_p2','pop',KK.pop,['Over 25 million passengers a year','Plus de 25 millions de passagers par an','Más de 25 millones de pasajeros al año'],1.2,c=>c.pop>=25000000,apPax),
+ U('a_p3','pop',KK.pop,['Over 50 million passengers a year','Plus de 50 millions de passagers par an','Más de 50 millones de pasajeros al año'],.5,c=>c.pop>=50000000,apPax,1),
+ U('a_c5','net',KA.net,['Nonstop flights to 5+ continents','Vols directs vers 5 continents ou plus','Vuelos directos a 5 continentes o más'],.6,c=>!!c.c5,c=>c.c5?W('nonstop to ','vols directs vers ','vuelos directos a ')+[...c.cs].map(i=>CONTN[['Africa','Asia','Europe','North America','South America','Oceania'][+i]][LI()]).join(', '):W('fewer than five continents on the nonstop network','moins de cinq continents en vols directs','menos de cinco continentes en vuelos directos'),1),
+ U('a_rare','iata',KA.code,['IATA code contains J, Q, X or Z','Le code IATA contient J, Q, X ou Z','El código IATA contiene J, Q, X o Z'],.8,c=>/[JQXZ]/.test(c.iata),c=>W('code ','code ','código ')+c.iata,1),
+ U('a_vow','iata',KA.code,['IATA code starts with a vowel','Le code IATA commence par une voyelle','El código IATA empieza con una vocal'],.8,c=>/^[AEIOU]/.test(c.iata),c=>W('code ','code ','código ')+c.iata),
+ U('a_mis','init',KA.code,['Code doesn’t start with the city’s first letter','Le code ne commence pas par l’initiale de la ville','El código no empieza con la inicial de la ciudad'],1,c=>!!c.city&&c.iata[0]!==c.city[0].toUpperCase(),c=>c.iata+' / '+c.city),
+];
 let CATS=CATS_CA;
 let CAT=Object.fromEntries([...CATS,LEGACY_CA_P1].map(c=>[c.id,c]));
 const lab=id=>{const a=CAT[id].l;return a[LI()]??a[0]},kick=id=>{const a=CAT[id].k;return a[LI()]??a[0]};
@@ -296,7 +326,7 @@ function answersFor(a,b){return CITIES.map((c,i)=>i).filter(i=>a.f(CITIES[i])&&b
 function hasMatching(sets){const match=new Map();
   const tryCell=(ci,seen)=>{for(const x of sets[ci]){if(seen.has(x))continue;seen.add(x);if(!match.has(x)||tryCell(match.get(x),seen)){match.set(x,ci);return true}}return false};
   return sets.every((_,ci)=>tryCell(ci,new Set()))}
-const NESTED=[['p3','p4'],['via','cn']];
+const NESTED=[['p3','p4'],['via','cn'],['a_p2','a_p3']];
 // Preserve published daily grids. From November 9 onward, each new daily has an explicit difficulty.
 const MIX_FROM='2026-11-08';
 const DAILY_LEVELS=['easy','medium','hard'];
@@ -495,7 +525,7 @@ document.getElementById('archDate').addEventListener('change',load);
 let DB=null,UID=null,meDoc=null,meExists=false,writing=Promise.resolve(),ALL=[],ME=null,dbState='off',lbTab='today';
 let LIVE={players:0,cellN:Array(9).fill(0),counts:Array.from({length:9},()=>({}))};
 const ckey=i=>CITIES[i].n+'|'+CITIES[i].p;let KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]));
-function useData(){if(!EDC().ready)return;CITIES=DATA[ED];CATS=ED==='us'?CATS_US:ED==='global'?CATS_GL:CATS_CA;CAT=Object.fromEntries([...CATS,...(ED==='ca'?[LEGACY_CA_P1]:[])].map(c=>[c.id,c]));INDEX=CITIES.map((c,i)=>({i,keys:[c.n,...c.a].map(norm)}));KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]))}
+function useData(){if(!EDC().ready)return;CITIES=DATA[ED];CATS=ED==='us'?CATS_US:ED==='global'?CATS_GL:ED==='ap'?CATS_AP:CATS_CA;CAT=Object.fromEntries([...CATS,...(ED==='ca'?[LEGACY_CA_P1]:[])].map(c=>[c.id,c]));INDEX=CITIES.map((c,i)=>({i,keys:[c.n,...c.a].map(norm)}));KEYIDX=Object.fromEntries(CITIES.map((c,i)=>[c.n+'|'+c.p,i]))}
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function drawLive(){const el=document.getElementById('live');el.textContent=!dated()||(dbState!=='on'&&dbState!=='readonly')?'':LIVE.players===1?T('player1'):T('players',{n:LIVE.players})}
 function aggregate(){const counts=Array.from({length:9},()=>({})),cellN=Array(9).fill(0);let players=0;
@@ -568,7 +598,7 @@ function syncPlay(){if(!meDoc||dbState==='readonly')return;const t=totals();
 
 // ---------- world map (Global edition) ----------
 const mx=c=>((c.lon+180)*2).toFixed(1),my=c=>((90-c.lat)*2).toFixed(1);
-function drawMap(){const p=document.getElementById('mapPanel');p.hidden=!(ED==='global'&&G);if(p.hidden)return;
+function drawMap(){const p=document.getElementById('mapPanel');p.hidden=!((ED==='global'||ED==='ap')&&G);if(p.hidden)return;
   let h='';if(S.done){const seen=new Set(S.cells.filter(x=>x!=null));G.sets.flat().forEach(i=>{if(seen.has(i))return;seen.add(i);const c=CITIES[i];h+=`<circle class="alt" cx="${mx(c)}" cy="${my(c)}" r="1.8"/>`})}
   S.cells.forEach((v,i)=>{if(v==null)return;const c=CITIES[v];h+=`<g><title>${esc(c.n)}</title><circle class="pick" cx="${mx(c)}" cy="${my(c)}" r="5"/><text class="pickn" x="${mx(c)}" y="${my(c)}">${i+1}</text></g>`});
   document.getElementById('mapDots').innerHTML=h;document.getElementById('mapSvg').setAttribute('aria-label',T('mapTitle')+': '+S.cells.filter(x=>x!=null).map(v=>CITIES[v].n).join(', '))}
@@ -639,10 +669,10 @@ document.getElementById('fbForm').addEventListener('submit',async e=>{e.preventD
 // ---------- edition switching ----------
 function drawEdRow(){document.getElementById('edRow').innerHTML=ED_ORDER.map(e=>`<button type="button" data-ed="${e}" aria-pressed="${e===ED}"><span aria-hidden="true">${EDITIONS[e].flag}</span>${esc(edShort(e))}${EDITIONS[e].ready?'':` <span class="dev">${T('edSoon')}</span>`}</button>`).join('');
   document.querySelectorAll('#edRow button').forEach(b=>b.addEventListener('click',()=>setEdition(b.dataset.ed,true)))}
-function drawBrand(){const [a,b]=EDC().brand;document.getElementById('brandH1').innerHTML=`${a}<span class="doku">${b}</span>${ED==='ca'?'':`<span class="edn"> – ${esc(edName(ED))}</span>`} <span class="flagemoji" role="img" aria-label="${esc(edName(ED))}">${EDC().flag}</span>`;
-  document.getElementById('subLine').textContent=ED==='ca'?T('sub'):EDC().ready?T('sub'):T('subOther',{name:edName(ED)});
+function drawBrand(){const [a,b]=EDC().brand;document.getElementById('brandH1').innerHTML=`${a}<span class="doku">${b}</span>${ED==='ca'||ED==='ap'?'':`<span class="edn"> – ${esc(edName(ED))}</span>`} <span class="flagemoji" role="img" aria-label="${esc(edName(ED))}">${EDC().flag}</span>`;
+  document.getElementById('subLine').textContent=ED==='ap'?W('Airports edition · name an airport that fits both signs','Édition aéroports · nomme un aéroport qui respecte les deux indices','Edición aeropuertos · nombra un aeropuerto que cumpla ambas pistas'):ED==='ca'?T('sub'):EDC().ready?T('sub'):T('subOther',{name:edName(ED)});
   document.getElementById('leaves').textContent=ED==='ca'?'🍁 🇨🇦 🍁':EDC().flag;
-  document.querySelectorAll('.brandName').forEach(el=>el.textContent=ED==='ca'?'Canadoku':'Citydoku')}
+  document.querySelectorAll('.brandName').forEach(el=>el.textContent=ED==='ca'?'Canadoku':ED==='ap'?'Airportdoku':'Citydoku')}
 function drawSoon(){const c=EDC();document.getElementById('soonTitle').textContent=brandName();document.getElementById('soonLead').textContent=c.lead;
   document.getElementById('soonCities').textContent=c.cities;document.getElementById('soonData').textContent=c.data;
   document.getElementById('soonCats').innerHTML=c.cats.map(x=>`<li>${esc(x)}</li>`).join('');
@@ -657,9 +687,9 @@ document.getElementById('suggestBtn').addEventListener('click',()=>{openFeedback
 document.getElementById('playCa').addEventListener('click',()=>setEdition('ca',true));
 function checkJoinHash(code0){const m=code0?[0,code0]:location.hash.match(/^#join-([A-Za-z0-9]{6})$/);if(!m)return false;const code=m[1].toUpperCase();try{history.replaceState(null,'','#'+EDC().hash)}catch(x){}
   const go=()=>{if(dbState==='on'||dbState==='readonly'){openLg('join',code)}else if(dbState==='none'){toast(T('needSignIn'))}else setTimeout(go,800)};go();return true}
-window.addEventListener('hashchange',()=>{if(checkJoinHash())return;const e=ED_ORDER.find(k=>'#'+EDITIONS[k].hash===location.hash);if(e&&e!==ED)setEdition(e,true)});
+window.addEventListener('hashchange',()=>{if(checkJoinHash())return;const e=[...ED_ORDER,...ED_BETA].find(k=>'#'+EDITIONS[k].hash===location.hash);if(e&&e!==ED)setEdition(e,true)});
 const JOIN0=(location.hash.match(/^#join-([A-Za-z0-9]{6})$/)||[])[1];
-{const h=ED_ORDER.find(k=>'#'+EDITIONS[k].hash===location.hash);setEdition(h||store.get('edition','global'),!!h)}
+{const h=[...ED_ORDER,...ED_BETA].find(k=>'#'+EDITIONS[k].hash===location.hash);setEdition(h||store.get('edition','global'),!!h)}
 initDb();
 if(JOIN0)checkJoinHash(JOIN0);
 

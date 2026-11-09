@@ -185,7 +185,7 @@ export const achievements = (stats) => ACHIEVEMENTS.map((a) => ({ id: a.id, unlo
 
 // ---------- backups ----------
 export const BACKUP_LIMITS = { bytes: 512 * 1024, days: 2000 };
-const DAY_KEY = /^(global|ca|us):daily:\d{4}-\d{2}-\d{2}$/;
+const DAY_KEY = /^(global|ca|us|ap):daily:\d{4}-\d{2}-\d{2}$/;
 
 export function sanitizeBackup(raw, limits = BACKUP_LIMITS) {
   const errors = [];
