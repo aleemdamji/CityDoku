@@ -291,21 +291,26 @@ const CATS_GL=[
 // ---------- Airport categories (Airportdoku beta) ----------
 const apCountry=p=>{try{AP_DN=AP_DN&&AP_DN.l===LANG?AP_DN:{l:LANG,d:new Intl.DisplayNames([LANG],{type:'region'})};return AP_DN.d.of(p)||p}catch(e){return p}};let AP_DN=null;
 const apIn=c=>W('in ','en ','en ')+apCountry(c.p)+' ('+CONTN[c.cont][LI()]+')';
-const AP_CTRY=[['US',['United States','États-Unis','Estados Unidos']],['CN',['China','Chine','China']],['RU',['Russia','Russie','Rusia']],['IN',['India','Inde','India']],['MX',['Mexico','Mexique','México']],['SA',['Saudi Arabia','Arabie saoudite','Arabia Saudita']],['BR',['Brazil','Brésil','Brasil']],['IR',['Iran','Iran','Irán']],['JP',['Japan','Japon','Japón']],['TR',['Türkiye','Turquie','Turquía']],['ES',['Spain','Espagne','España']],['CA',['Canada','Canada','Canadá']],['EG',['Egypt','Égypte','Egipto']],['FR',['France','France','Francia']],['IT',['Italy','Italie','Italia']],['DE',['Germany','Allemagne','Alemania']],['AU',['Australia','Australie','Australia']],['ID',['Indonesia','Indonésie','Indonesia']]];
-const KA={code:['IATA code','Code IATA','Código IATA'],alt:['Altitude','Altitude','Altitud'],runway:['Runways','Pistes','Pistas'],clim:['Latitude','Latitude','Latitud']};
+const AP_CTRY=[['US',['United States','États-Unis','Estados Unidos']],['CN',['China','Chine','China']],['IN',['India','Inde','India']],['BR',['Brazil','Brésil','Brasil']],['ES',['Spain','Espagne','España']],['FR',['France','France','Francia']],['RU',['Russia','Russie','Rusia']],['DE',['Germany','Allemagne','Alemania']],['IT',['Italy','Italie','Italia']],['JP',['Japan','Japon','Japón']],['TR',['Türkiye','Turquie','Turquía']],['MX',['Mexico','Mexique','México']]];
+const KA={code:['IATA code','Code IATA','Código IATA'],alt:['Altitude','Altitude','Altitud'],runway:['Runways','Pistes','Pistas'],clim:['Latitude','Latitude','Latitud'],net:['Network','Réseau','Red']};
 const apM=m=>fmt(m)+' m';
+const apPax=c=>fmt(c.pop)+W(' passengers (',' passagers (',' pasajeros (')+c.py+')';
 const CATS_AP=[
  ...Object.keys(CONTN).map(k=>U('a_'+k.replace(' ',''),'prov',KK.cont,CONTN[k],k==='Asia'?2:k==='Oceania'?.5:1.6,c=>c.cont===k,apIn)),
- ...AP_CTRY.map(([cc,nm])=>U('a_'+cc,'prov',KK.ctry,nm,cc==='US'||cc==='CN'||cc==='RU'||cc==='IN'?1.2:.5,c=>c.p===cc,apIn)),
+ ...AP_CTRY.map(([cc,nm])=>U('a_'+cc,'prov',KK.ctry,nm,cc==='US'||cc==='CN'?1.2:.5,c=>c.p===cc,apIn)),
  ...CATS_GL.filter(c=>['g_N','g_S','g_E','g_W'].includes(c.id)).map(c=>({...c,id:'a'+c.id.slice(1)})),
  U('a_hi','alt',KA.alt,['Above 1,000 m elevation','Plus de 1 000 m d’altitude','A más de 1000 m de altitud'],1,c=>c.elev>=1000,c=>c.iata+': '+apM(c.elev)),
  U('a_sea','alt',KA.alt,['At or near sea level (10 m or lower)','Au niveau de la mer (10 m ou moins)','A nivel del mar (10 m o menos)'],1.2,c=>c.elev<=10,c=>c.iata+': '+apM(c.elev)),
  U('a_trop','lat',KA.clim,['Within the tropics','Dans la zone tropicale','En la zona tropical'],1.2,c=>Math.abs(c.lat)<23.44,c=>c.iata+': '+Math.abs(c.lat).toFixed(1)+'°'+(c.lat>=0?'N':'S')),
- U('a_n60','lat',KA.clim,['North of 60°N','Au nord du 60e parallèle','Al norte de 60°N'],.3,c=>c.lat>=60,c=>c.iata+': '+c.lat.toFixed(1)+'°N',1),
  U('a_l4','len',KA.runway,['Longest runway 4,000 m or more','Piste la plus longue : 4 000 m ou plus','Pista más larga: 4000 m o más'],1,c=>c.lg>=4000,c=>c.iata+': '+apM(c.lg)),
  U('a_lshort','len',KA.runway,['Longest runway under 3,200 m','Piste la plus longue : moins de 3 200 m','Pista más larga: menos de 3200 m'],1.2,c=>c.lg<3200,c=>c.iata+': '+apM(c.lg)),
  U('a_r1','num',KA.runway,['Only one runway','Une seule piste','Una sola pista'],1.2,c=>c.rw===1,c=>c.iata+': '+c.rw+W(c.rw===1?' runway':' runways',c.rw===1?' piste':' pistes',c.rw===1?' pista':' pistas')),
  U('a_r3','num',KA.runway,['Three or more runways','Trois pistes ou plus','Tres pistas o más'],1,c=>c.rw>=3,c=>c.iata+': '+c.rw+W(' runways',' pistes',' pistas')),
+ U('a_p0','pop',KK.pop,['Under 10 million passengers a year','Moins de 10 millions de passagers par an','Menos de 10 millones de pasajeros al año'],1,c=>c.pop<10000000,apPax),
+ U('a_p1','pop',KK.pop,['10 to 25 million passengers a year','De 10 à 25 millions de passagers par an','De 10 a 25 millones de pasajeros al año'],1.2,c=>c.pop>=10000000&&c.pop<25000000,apPax),
+ U('a_p2','pop',KK.pop,['Over 25 million passengers a year','Plus de 25 millions de passagers par an','Más de 25 millones de pasajeros al año'],1.2,c=>c.pop>=25000000,apPax),
+ U('a_p3','pop',KK.pop,['Over 50 million passengers a year','Plus de 50 millions de passagers par an','Más de 50 millones de pasajeros al año'],.5,c=>c.pop>=50000000,apPax,1),
+ U('a_c5','net',KA.net,['Nonstop flights to 5+ continents','Vols directs vers 5 continents ou plus','Vuelos directos a 5 continentes o más'],.6,c=>!!c.c5,c=>c.c5?W('nonstop to ','vols directs vers ','vuelos directos a ')+[...c.cs].map(i=>CONTN[['Africa','Asia','Europe','North America','South America','Oceania'][+i]][LI()]).join(', '):W('fewer than five continents on the nonstop network','moins de cinq continents en vols directs','menos de cinco continentes en vuelos directos'),1),
  U('a_rare','iata',KA.code,['IATA code contains J, Q, X or Z','Le code IATA contient J, Q, X ou Z','El código IATA contiene J, Q, X o Z'],.8,c=>/[JQXZ]/.test(c.iata),c=>W('code ','code ','código ')+c.iata,1),
  U('a_vow','iata',KA.code,['IATA code starts with a vowel','Le code IATA commence par une voyelle','El código IATA empieza con una vocal'],.8,c=>/^[AEIOU]/.test(c.iata),c=>W('code ','code ','código ')+c.iata),
  U('a_mis','init',KA.code,['Code doesn’t start with the city’s first letter','Le code ne commence pas par l’initiale de la ville','El código no empieza con la inicial de la ciudad'],1,c=>!!c.city&&c.iata[0]!==c.city[0].toUpperCase(),c=>c.iata+' / '+c.city),
@@ -321,7 +326,7 @@ function answersFor(a,b){return CITIES.map((c,i)=>i).filter(i=>a.f(CITIES[i])&&b
 function hasMatching(sets){const match=new Map();
   const tryCell=(ci,seen)=>{for(const x of sets[ci]){if(seen.has(x))continue;seen.add(x);if(!match.has(x)||tryCell(match.get(x),seen)){match.set(x,ci);return true}}return false};
   return sets.every((_,ci)=>tryCell(ci,new Set()))}
-const NESTED=[['p3','p4'],['via','cn']];
+const NESTED=[['p3','p4'],['via','cn'],['a_p2','a_p3']];
 // Preserve published daily grids. From November 9 onward, each new daily has an explicit difficulty.
 const MIX_FROM='2026-11-08';
 const DAILY_LEVELS=['easy','medium','hard'];
