@@ -40,16 +40,6 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-siz
 .edrow{display:flex;gap:6px;flex-wrap:wrap}
 .edrow button{flex:0 0 auto;font:700 .82rem var(--font-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:34px;display:inline-flex;gap:6px;align-items:center}
 .edrow button[aria-pressed="true"]{background:var(--sign);border-color:var(--sign);color:var(--sign-ink)}
-.edrow .dev{font:600 .6rem var(--font-mono);letter-spacing:.06em;text-transform:uppercase;opacity:.75}
-.soonp{gap:12px}
-.soonp h2{font-size:1.3rem}
-.soonp h3{margin:4px 0 0;font:800 .8rem var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
-.soonp p{margin:0}
-.soonp ul{margin:0;padding-left:18px;display:grid;gap:3px}
-.pill{align-self:flex-start;font:700 .65rem var(--font-mono);letter-spacing:.1em;text-transform:uppercase;background:var(--hit);color:var(--hit-ink);border-radius:999px;padding:4px 10px}
-.preview{opacity:.92}
-.preview .cell{cursor:default}
-.preview-cap{font:600 .7rem var(--font-mono);color:var(--muted);text-align:center;margin:0}
 header{display:flex;flex-direction:column;gap:10px}
 .toprow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:nowrap}
 .toprow .brand{flex:1;min-width:0}
@@ -142,7 +132,6 @@ table.lb{width:100%;border-collapse:collapse;font-size:.85rem;font-variant-numer
 .remrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .remrow input{font:600 .9rem var(--font-body);border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink);min-height:34px}
 .streakwarn{color:var(--hit-ink);background:var(--hit);border-radius:8px;padding:8px 10px;font-weight:700;font-size:.85rem}
-.sponsor{border:1px dashed var(--line);border-radius:10px;padding:14px;text-align:center;font:600 .7rem var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
 .err{color:var(--red);font-size:.8rem;margin:0;min-height:1.2em}
 dialog{border:0;padding:0;background:transparent;max-width:min(520px,calc(100vw - 32px));width:100%;margin:auto}
 dialog::backdrop{background:rgba(30,8,8,.55)}
