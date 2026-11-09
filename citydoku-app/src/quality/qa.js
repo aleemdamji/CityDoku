@@ -34,7 +34,7 @@ export function snapshot(ed, date) {
   return freezePuzzle({ edition: ed, date, level: Q().dailyLevel(date), rows: p.rows, cols: p.cols, answers: p.answers });
 }
 export function compare(snap) { const p = puzzleFor(snap.edition, snap.date); return compareSnapshot(snap, { rows: p.rows, cols: p.cols, answers: p.answers }); }
-export function sweep(from = '2026-11-08', to = '2027-01-31', eds = ['global', 'ca', 'us']) {
+export function sweep(from = '2026-11-08', to = '2027-01-31', eds = ['global', 'ca', 'us', 'ap']) {
   const out = [];
   for (const ed of eds) for (let d = from; d <= to; d = addDays(d, 1)) out.push(audit(ed, d));
   return out;
