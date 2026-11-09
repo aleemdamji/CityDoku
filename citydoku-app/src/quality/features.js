@@ -54,9 +54,11 @@ function lookup(edition, key) {
   const D = Q().DATA[edition]; if (!D) return null;
   const idx = indexCache[edition] || (indexCache[edition] = new Map(D.map((c) => [c.n + '|' + c.p, c])));
   const c = idx.get(key); if (!c) return null;
-  return edition === 'global' ? { region: c.p, country: c.cn, continent: c.cont } : { region: c.p, country: edition.toUpperCase(), continent: 'North America' };
+  if (edition === 'global') return { region: c.p, country: c.cn, continent: c.cont };
+  if (edition === 'ap') return { region: c.p, country: c.p, continent: c.cont };
+  return { region: c.p, country: edition.toUpperCase(), continent: 'North America' };
 }
-export const profile = () => buildProfile(localPlays(), lookup);
+const profile = () => buildProfile(localPlays(), lookup);
 
 // ---------- dialog helper ----------
 function dlg() {
@@ -174,7 +176,7 @@ function maybeTutorial() {
   try {
     const date = '2026-01-15';
     q.withEd(q.ED, () => {
-      const g = q.generate(q.SEED(q.ED) + date, 0, false);
+      const g = q.generate(q.SEED(q.ED) + date, q.dailyLevel(date), false);
       const cell = 0, a = [...g.sets[cell]].sort((x, y) => q.DATA[q.ED][y].pop - q.DATA[q.ED][x].pop)[0];
       const city = q.CITIES[a];
       ex = `<p class="meta">${esc(t('tEx'))}:</p><p><b>${esc(q.lab(g.rows[0]))}</b> + <b>${esc(q.lab(g.cols[0]))}</b> → ${esc(city.n)} (${esc(t('tFits'))})</p>`;
