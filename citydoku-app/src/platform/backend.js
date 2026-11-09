@@ -34,16 +34,6 @@ const mapErr = (e) => {
   return { code: 'unavailable', message: e.message };
 };
 
-// Deep merge where null deletes nothing but sets null (mirrors the artifact store's update()).
-function deepMerge(a, b) {
-  for (const k of Object.keys(b)) {
-    const v = b[k];
-    if (v && typeof v === 'object' && !Array.isArray(v)) a[k] = deepMerge(a[k] && typeof a[k] === 'object' ? a[k] : {}, v);
-    else a[k] = v;
-  }
-  return a;
-}
-
 // ---- live "plays" collection: initial load + realtime changes ----
 const rows = new Map();
 const listeners = new Set();
@@ -119,7 +109,6 @@ const db = {
 
 const user = {
   id: async () => session?.user?.id || null,
-  isOwner: async () => false, canEdit: async () => false, can: async () => null,
 };
 
 // File saving: browser download on the web, share sheet in the iOS app.

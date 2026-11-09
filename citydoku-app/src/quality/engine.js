@@ -14,7 +14,6 @@ export function hash32(s) {
 }
 
 const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
-const ROWCOL = [0, 1, 2];
 
 // Distinct-answer feasibility: can the nine cells be filled with nine different places? (bipartite matching)
 export function hasMatching(sets) {

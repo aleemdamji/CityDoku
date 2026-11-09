@@ -129,4 +129,3 @@ export function installAuthUI() {
   }
 }
 
-export const authText = tx;
