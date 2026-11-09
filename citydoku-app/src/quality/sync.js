@@ -3,7 +3,7 @@
 // day), and a queued day is dropped if the server already holds a newer or more complete copy.
 // Also copies finished guest games into a new account the first time a player signs in.
 const KEY = 'cd:syncq';
-const DAY = /^(global|ca|us):daily:(\d{4}-\d{2}-\d{2})$/;
+const DAY = /^(global|ca|us|ap):daily:(\d{4}-\d{2}-\d{2})$/;
 const MAX_QUEUE = 400;
 
 const read = () => { try { const q = JSON.parse(localStorage.getItem(KEY)); return q && typeof q === 'object' && !Array.isArray(q) ? q : {}; } catch { return {}; } };
@@ -17,7 +17,7 @@ function add(data) {
   const q = read();
   const tokens = [];
   for (const [k, d] of Object.entries(data.days)) {
-    if (!/^(global|ca|us):\d{4}-\d{2}-\d{2}$/.test(k)) continue;
+    if (!/^(global|ca|us|ap):\d{4}-\d{2}-\d{2}$/.test(k)) continue;
     q[k] = { data: { days: { [k]: d }, ...(data.last ? { last: data.last } : {}) }, ts: d.ts || Date.now() };
     tokens.push([k, q[k].ts]);
   }
