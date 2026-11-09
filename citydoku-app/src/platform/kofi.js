@@ -1,7 +1,8 @@
 // Optional, web-only Ko-fi link. No third-party scripts, cookies or embeds.
 import { Capacitor } from '@capacitor/core';
 
-const raw = (import.meta.env.VITE_KOFI_URL || 'https://ko-fi.com/citydoku').trim();
+// Unset: default page. Set VITE_KOFI_URL to another Ko-fi page, or to an empty value to hide the link.
+const raw = String(import.meta.env.VITE_KOFI_URL ?? 'https://ko-fi.com/citydoku').trim();
 const section = document.getElementById('kofiSupport');
 const anchor = document.getElementById('kofiSupportLink');
 
