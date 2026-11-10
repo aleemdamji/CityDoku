@@ -278,6 +278,15 @@ const CATS_AP=[
  U('a_vow','iata',KA.code,['IATA code starts with a vowel','Le code IATA commence par une voyelle','El código IATA empieza con una vocal'],.8,c=>/^[AEIOU]/.test(c.iata),c=>W('code ','code ','código ')+c.iata),
  U('a_mis','init',KA.code,['Code doesn’t start with the city’s first letter','Le code ne commence pas par l’initiale de la ville','El código no empieza con la inicial de la ciudad'],1,c=>!!c.city&&c.iata[0]!==c.city.normalize('NFD')[0].toUpperCase(),c=>c.iata+' / '+c.city),
 ];
+// Retired clues: still used for daily grids before RETIRE_FROM so published and archived grids don't change; never used after that or in free play.
+const RETIRE_FROM='2026-11-10';
+const RETIRED=new Set([
+ 'g_ID','g_NG','g_PK','g_TR','g_SE', // Global: countries
+ 'p2','p3','p4','nott', // Canada: population, no pro or major junior team
+ ...US_STATES.map(s=>'u_'+s),'u_ns','u_ew', // USA: states, major N–S and E–W interstates
+ 'a_trop', // Airports: within the tropics
+]);
+const keepRetired=ds=>!!ds&&ds<RETIRE_FROM;
 let CATS=CATS_CA;
 let CAT=Object.fromEntries([...CATS,LEGACY_CA_P1].map(c=>[c.id,c]));
 const lab=id=>{const a=CAT[id].l;return a[LI()]??a[0]},kick=id=>{const a=CAT[id].k;return a[LI()]??a[0]};
@@ -301,11 +310,11 @@ const dailyLevel=ds=>{
 };
 const legacyCaDay=ds=>ED==='ca'&&ds<LEVEL_CYCLE_FROM;
 const DIFF={mixed:{min:1,max:60,mix:true},easy:{min:6,max:60,cats:c=>c.g!=='name'&&!c.rare&&!['pwhl','u2','sl','p4','cn','rt'].includes(c.id)},medium:{min:3,max:40},hard:{min:1,max:30,needSmall:3}};
-const SIGC={};function sigFor(ds){const k=ED+':'+ds;if(!(k in SIGC)){const g=generate((EDC().seed||ED+'-')+ds,dailyLevel(ds),legacyCaDay(ds));SIGC[k]=g.rows.join(',')+'|'+g.cols.join(',')}return SIGC[k]}
-function generate(seedStr,level,legacyCa=false){
+const SIGC={};function sigFor(ds){const k=ED+':'+ds;if(!(k in SIGC)){const g=generate((EDC().seed||ED+'-')+ds,dailyLevel(ds),legacyCaDay(ds),keepRetired(ds));SIGC[k]=g.rows.join(',')+'|'+g.cols.join(',')}return SIGC[k]}
+function generate(seedStr,level,legacyCa=false,withRetired=false){
   // Restore the retired population clue in its original position for archived Canadoku grids only.
   const cats=legacyCa&&ED==='ca'?[...CATS.slice(0,12),LEGACY_CA_P1,...CATS.slice(12)]:CATS;
-  const r=rng(hashStr(seedStr)),d=DIFF[level],pool=cats.filter(d.cats||(()=>true));
+  const r=rng(hashStr(seedStr)),d=DIFF[level],pool=cats.filter(c=>withRetired||!RETIRED.has(c.id)).filter(d.cats||(()=>true));
   for(let tries=0;tries<20000;tries++){
     const rows=[],cols=[],rg=new Set(),cg=new Set();let ok=true;
     for(let k=0;k<6&&ok;k++){
@@ -343,7 +352,7 @@ function load(){
   document.getElementById('fb').innerHTML='';
   if(dated()){
     curDate=mode==='daily'?todayET():(document.getElementById('archDate').value||prevDay(todayET()));
-    key=ED+':daily:'+curDate;G=generate((EDC().seed||ED+'-')+curDate,dailyLevel(curDate),legacyCaDay(curDate));S=store.get(key,null)||freshState();S.log=S.log||[];if(Array.isArray(S.ck)&&S.ck.length===9)S.cells=S.ck.map(k=>typeof k==='string'&&Object.hasOwn(KEYIDX,k)?KEYIDX[k]:null);restoreFromDb();
+    key=ED+':daily:'+curDate;G=generate((EDC().seed||ED+'-')+curDate,dailyLevel(curDate),legacyCaDay(curDate),keepRetired(curDate));S=store.get(key,null)||freshState();S.log=S.log||[];if(Array.isArray(S.ck)&&S.ck.length===9)S.cells=S.ck.map(k=>typeof k==='string'&&Object.hasOwn(KEYIDX,k)?KEYIDX[k]:null);restoreFromDb();
   }else{const lvl=document.getElementById('diff').value;curDate=null;key=null;G=generate('free-'+Date.now()+Math.random(),lvl);S=freshState()}
   aggregate();render();
 }
@@ -651,5 +660,5 @@ if(JOIN0)checkJoinHash(JOIN0);
 
 document.querySelector('.map .land')?.setAttribute('d',LAND);
 function withEd(e,fn){if(e===ED)return fn();const old=ED;ED=e;useData();try{return fn()}finally{ED=old;useData()}}
-window.CDQ={get ED(){return ED},get LANG(){return LANG},get mode(){return mode},get G(){return G},get S(){return S},get curDate(){return curDate},get CITIES(){return CITIES},get CAT(){return CAT},get ME(){return ME},get UID(){return UID},EDITIONS,ED_ORDER,DATA,GLC,withEd,generate,sigFor,dailyLevel,legacyCaDay,hasMatching,answersFor,hashStr,ckey,lab,kick,rate,estRate,liveN,liveC,totals,statsOf,todayET,prevDay,puzzleNo,PV,esc,norm,T,write,store,dated,edName,syncPlay,SEED:e=>EDITIONS[e].seed||e+'-'};
+window.CDQ={get ED(){return ED},get LANG(){return LANG},get mode(){return mode},get G(){return G},get S(){return S},get curDate(){return curDate},get CITIES(){return CITIES},get CAT(){return CAT},get ME(){return ME},get UID(){return UID},EDITIONS,ED_ORDER,DATA,GLC,withEd,generate,sigFor,dailyLevel,legacyCaDay,keepRetired,hasMatching,answersFor,hashStr,ckey,lab,kick,rate,estRate,liveN,liveC,totals,statsOf,todayET,prevDay,puzzleNo,PV,esc,norm,T,write,store,dated,edName,syncPlay,SEED:e=>EDITIONS[e].seed||e+'-'};
 window.CD={T:(k,v)=>T(k,v),toast:m=>toast(m),get LANG(){return LANG},get UID(){return UID}};
