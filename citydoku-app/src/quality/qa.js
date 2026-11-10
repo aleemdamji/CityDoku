@@ -8,7 +8,7 @@ const addDays = (d, n) => new Date(Date.parse(d + 'T12:00:00Z') + n * 864e5).toI
 export function puzzleFor(ed, date) {
   const q = Q();
   return q.withEd(ed, () => {
-    const g = q.generate(q.SEED(ed) + date, q.dailyLevel(date), ed === 'ca' ? q.legacyCaDay(date) : false);
+    const g = q.generate(q.SEED(ed) + date, q.dailyLevel(date), ed === 'ca' ? q.legacyCaDay(date) : false, q.keepRetired(date));
     return { g, rows: g.rows.map(String), cols: g.cols.map(String), answers: g.sets.map((s) => [...s].map((i) => q.ckey(i)).sort()), cities: q.CITIES, sets: g.sets };
   });
 }
