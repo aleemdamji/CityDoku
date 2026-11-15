@@ -47,8 +47,10 @@ async function showEnabledProviders() {
     const url = import.meta.env.VITE_SUPABASE_URL.replace(/\/$/, '') + '/auth/v1/settings';
     const res = await fetch(url, { headers: { apikey: import.meta.env.VITE_SUPABASE_ANON_KEY } });
     const ext = (await res.json())?.external || {};
+    // App Store guideline 4.8: in the iOS app, Google/Facebook sign-in may only be offered alongside Sign in with Apple.
+    const blocked = (p) => HIDDEN_PROVIDERS.has(p) || (NATIVE.isNative && p !== 'apple' && ext.apple !== true);
     let any = false;
-    for (const [p, id] of Object.entries(ids)) if (ext[p] === true && !HIDDEN_PROVIDERS.has(p)) { $(id).hidden = false; any = true; }
+    for (const [p, id] of Object.entries(ids)) if (ext[p] === true && !blocked(p)) { $(id).hidden = false; any = true; }
     $('authOr').parentElement.hidden = !any;
   } catch { /* email sign-in still works */ }
 }

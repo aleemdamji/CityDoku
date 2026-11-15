@@ -69,21 +69,26 @@ Feedback lands in the `feedback` table (Table Editor), readable only by you.
 
 ## 4. iOS app (Mac with Xcode)
 
+The Xcode project is in `ios/` (Swift Package Manager, no CocoaPods). Already set: bundle id `app.citydoku.game`, app icon (`public/icon-1024.png`), blue splash, URL scheme `app.citydoku.game` (sign-in return), portrait only on iPhone, EN/FR/ES, `ITSAppUsesNonExemptEncryption = NO` (skips the export-compliance question).
+
+Needs: Xcode 26 from the Mac App Store, Node 20+, a paid Apple Developer account.
+
 ```bash
 npm install
-npx cap add ios          # first time only
-npm run ios              # builds the web app, copies it into Xcode, opens Xcode
+cp .env.example .env.local     # same VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY as Vercel
+npm run ios                    # builds the web app, copies it into Xcode, opens Xcode
 ```
 
-In Xcode (`ios/App/App.xcworkspace`):
+In Xcode (`ios/App/App.xcodeproj`):
 
-1. **Signing & Capabilities** → choose your team; bundle id `app.citydoku.game`.
-2. Add capabilities: **Sign in with Apple** and **Push Notifications** (local notifications don’t need push, but keep it if you add push later).
-3. **Info → URL Types** → add URL scheme `app.citydoku.game` (used to return from Apple/Google/email sign-in).
-4. Replace the app icon with `public/icon-1024.png` (Assets → AppIcon).
-5. Run on a device, then **Product → Archive → Distribute → App Store Connect**.
+1. Select **App** target → **Signing & Capabilities** → tick *Automatically manage signing*, choose your team.
+2. Run on your iPhone (plug in, pick it at the top, ▶). First run: iPhone Settings → Privacy & Security → Developer Mode on.
+3. Top bar device = **Any iOS Device (arm64)** → **Product → Archive** → **Distribute App → App Store Connect → Upload**.
+4. App Store Connect → TestFlight: the build appears after ~15 min processing. Internal testers (up to 100 team members) need no review; external testers need a short Beta App Review.
 
-After every change to the web code: `npm run ios` again (or `npm run build && npx cap sync ios`).
+For each new upload, raise **Build** (General tab) by 1. After every web code change: `npm run ios` again.
+
+Sign-in on iOS: Google/Facebook buttons stay hidden until Sign in with Apple is enabled in Supabase (guideline 4.8). Email sign-in works throughout.
 
 ### App Store checklist
 
